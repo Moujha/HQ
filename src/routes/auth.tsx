@@ -32,11 +32,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         // Ensure profile exists — trigger may not fire on all Supabase plan tiers
         if (data.user) {
