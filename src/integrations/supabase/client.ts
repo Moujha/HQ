@@ -16,8 +16,17 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
       new Headers(init.headers).forEach((value, key) => headers.set(key, value));
     }
 
-    // New Supabase API keys are opaque strings, not bearer JWTs.
-    if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
+    // New-style keys (sb_publishable_*) are opaque strings, not JWTs.
+    // PostgREST rejects them as Bearer tokens, so we strip Authorization for
+    // REST API calls. The Auth API however requires the Bearer header to
+    // identify the project — leave it intact for /auth/v1/* endpoints.
+    const url = input instanceof Request ? input.url : String(input);
+    const isAuthEndpoint = url.includes('/auth/v1/');
+    if (
+      !isAuthEndpoint &&
+      isNewSupabaseApiKey(supabaseKey) &&
+      headers.get('Authorization') === `Bearer ${supabaseKey}`
+    ) {
       headers.delete('Authorization');
     }
 
