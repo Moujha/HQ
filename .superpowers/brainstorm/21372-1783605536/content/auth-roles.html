@@ -1,0 +1,148 @@
+<h2>Auth, Rôles &amp; Onboarding</h2>
+<p class="subtitle">Deux rôles, un seul produit — ce que chacun voit</p>
+
+<div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start">
+
+  <!-- Auth flow -->
+  <div style="flex:1;min-width:280px">
+    <p class="label" style="margin-bottom:12px">Flux d'authentification</p>
+    <div style="background:#111;border-radius:12px;padding:16px;font-size:11px">
+
+      <!-- Step 1 -->
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px">
+        <div style="width:24px;height:24px;background:#1f1f1f;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0">1</div>
+        <div>
+          <div style="color:#fff;font-weight:600;margin-bottom:3px">Paul crée son compte manager</div>
+          <div style="color:#666">Email + mot de passe via Supabase Auth. Profile créé avec <code style="color:#f59e0b">role=manager</code>. Onboarding : saisir la date de début de commission (défaut : 01/01/2025).</div>
+        </div>
+      </div>
+      <div style="width:1px;height:16px;background:#222;margin-left:11px;margin-top:-12px;margin-bottom:4px"></div>
+
+      <!-- Step 2 -->
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px">
+        <div style="width:24px;height:24px;background:#1f1f1f;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0">2</div>
+        <div>
+          <div style="color:#fff;font-weight:600;margin-bottom:3px">Paul invite l'artiste par email</div>
+          <div style="color:#666">Depuis Réglages → "Inviter l'artiste". Supabase envoie un lien magique. À l'ouverture, le profile est créé automatiquement avec <code style="color:#60a5fa">role=artist</code>.</div>
+        </div>
+      </div>
+      <div style="width:1px;height:16px;background:#222;margin-left:11px;margin-top:-12px;margin-bottom:4px"></div>
+
+      <!-- Step 3 -->
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:24px;height:24px;background:#1f1f1f;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0">3</div>
+        <div>
+          <div style="color:#fff;font-weight:600;margin-bottom:3px">Artiste installe la PWA</div>
+          <div style="color:#666">Onboarding artiste : 1 écran "Ajoute l'app à ton écran d'accueil" avec instructions iOS/Android. Requis pour les push notifications. Pas bloquant — l'app fonctionne sans.</div>
+        </div>
+      </div>
+
+      <!-- RLS note -->
+      <div style="margin-top:16px;padding:10px 12px;background:#0a0a0a;border-radius:8px;border-left:2px solid #f59e0b">
+        <div style="color:#f59e0b;font-size:9px;font-weight:700;margin-bottom:4px">Sécurité — Supabase RLS</div>
+        <div style="color:#666;font-size:10px;line-height:1.6">L'artiste ne peut lire que les colonnes exposées par des policies explicites. Toute la logique de permission est dans Postgres — pas dans le code React, qui peut être inspecté.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What each role sees -->
+  <div style="flex:2;min-width:320px">
+    <p class="label" style="margin-bottom:12px">Ce que chacun voit</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <!-- Manager column -->
+      <div>
+        <div style="background:#1a1208;border:1px solid #78350f;border-radius:8px;padding:8px 12px;margin-bottom:8px;text-align:center">
+          <span style="color:#f59e0b;font-size:10px;font-weight:700">👤 Manager (Paul)</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:10px">
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Cachets</div>
+            <div style="color:#666">Vue complète + ajout + édition</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Fees &amp; Commission</div>
+            <div style="color:#666">Dashboard complet, toutes lignes, NDF, versements</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Factures</div>
+            <div style="color:#666">Création, statuts, relances</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Tâches</div>
+            <div style="color:#666">Toutes les tâches, assignation</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Calendrier</div>
+            <div style="color:#666">Ajout et édition d'events</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Tracks</div>
+            <div style="color:#666">Catalogue, statuts SACEM, is_commissionable</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Subventions</div>
+            <div style="color:#666">Vue Kanban complète</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Contrats (Phase 2)</div>
+            <div style="color:#666">Accès exclusif, non visible par l'artiste</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Artist column -->
+      <div>
+        <div style="background:#0a0f1a;border:1px solid #1e3a5f;border-radius:8px;padding:8px 12px;margin-bottom:8px;text-align:center">
+          <span style="color:#60a5fa;font-size:10px;font-weight:700">🎵 Artiste</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:10px">
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Cachets (lecture)</div>
+            <div style="color:#666">Ses paiements reçus, dates, statuts — pas d'ajout</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#f59e0b;margin-bottom:3px">~ Fees (résumé seul)</div>
+            <div style="color:#666">Montant total dû au manager uniquement — pas le détail des lignes, pas les NDF</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:8px;padding:8px 10px;opacity:0.5">
+            <div style="color:#555;margin-bottom:3px">✗ Factures</div>
+            <div style="color:#444">Non visible</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Tâches (les siennes)</div>
+            <div style="color:#666">Uniquement assignee_role=artist</div>
+          </div>
+          <div style="background:#141414;border-radius:8px;padding:8px 10px">
+            <div style="color:#4ade80;margin-bottom:3px">✓ Calendrier (lecture)</div>
+            <div style="color:#666">Ses dates — pas d'édition</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:8px;padding:8px 10px;opacity:0.5">
+            <div style="color:#555;margin-bottom:3px">✗ Tracks</div>
+            <div style="color:#444">Non visible</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:8px;padding:8px 10px;opacity:0.5">
+            <div style="color:#555;margin-bottom:3px">✗ Subventions</div>
+            <div style="color:#444">Non visible</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:8px;padding:8px 10px;opacity:0.5">
+            <div style="color:#555;margin-bottom:3px">✗ Contrats</div>
+            <div style="color:#444">Jamais visible</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RLS rules summary -->
+    <div style="margin-top:12px;background:#111;border-radius:10px;padding:12px;font-size:10px">
+      <div style="color:#888;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em;font-size:9px">Policies RLS clés</div>
+      <div style="display:flex;flex-direction:column;gap:5px;color:#666;line-height:1.5">
+        <div><code style="color:#f59e0b">payments</code> : artiste voit uniquement SELECT sur ses propres lignes (artist_id = auth.uid())</div>
+        <div><code style="color:#f59e0b">management_fees</code> : artiste voit uniquement <code style="color:#60a5fa">SUM(commission_due)</code> via une view dédiée — jamais la table directement</div>
+        <div><code style="color:#f59e0b">tasks</code> : artiste voit uniquement WHERE assignee_role = 'artist'</div>
+        <div><code style="color:#f59e0b">grants, tracks, expenses</code> : SELECT bloqué pour role=artist au niveau Postgres</div>
+      </div>
+    </div>
+  </div>
+
+</div>

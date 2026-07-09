@@ -1,0 +1,189 @@
+<h2>Modèle de données — relations clés</h2>
+<p class="subtitle">Lecture : chaque flèche indique une clé étrangère. Les tables grises sont de Phase 2+.</p>
+
+<div style="background:#111;border-radius:12px;padding:24px;font-family:monospace;font-size:11px;overflow:auto">
+
+  <div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+
+    <!-- CORE: payments -->
+    <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start">
+
+      <!-- payment_batches -->
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:180px">
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:8px;font-size:12px">payment_batches</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#ccc">label text</div>
+        <div style="color:#888">batch_count int</div>
+        <div style="color:#888">created_at timestamptz</div>
+      </div>
+
+      <!-- payments -->
+      <div style="background:#1f1a0a;border:2px solid #f59e0b;border-radius:8px;padding:12px;min-width:200px">
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:8px;font-size:12px">⭐ payments</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#ccc">artist_id → profiles</div>
+        <div style="color:#ccc">track_id → tracks?</div>
+        <div style="color:#ccc">batch_id → payment_batches?</div>
+        <div style="color:#ccc">event_id → events?</div>
+        <div style="color:#999">amount numeric</div>
+        <div style="color:#999">payment_date date</div>
+        <div style="color:#999">expires_at date  <span style="color:#4ade80">← +12 mois auto</span></div>
+        <div style="color:#888">status: provisoire | facturé |</div>
+        <div style="color:#888">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cachet_en_attente | payé</div>
+        <div style="color:#888">source: label|booking|clip|</div>
+        <div style="color:#888">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;track|résidence</div>
+        <div style="color:#888">territory: france | étranger</div>
+        <div style="color:#888">counts_for_intermittence bool</div>
+        <div style="color:#888">deductible_expenses numeric</div>
+        <div style="color:#888">notes text</div>
+        <div style="color:#888">created_by uuid</div>
+      </div>
+
+      <!-- expenses (NDF) -->
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:180px">
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:8px;font-size:12px">expenses (NDF)</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#ccc">payment_id → payments?</div>
+        <div style="color:#999">amount numeric</div>
+        <div style="color:#999">description text</div>
+        <div style="color:#888">status: à_rembourser | remboursée</div>
+        <div style="color:#888">tricount_ref text?</div>
+      </div>
+
+    </div>
+
+    <!-- Flèches visuelles -->
+    <div style="display:flex;flex-direction:column;justify-content:center;color:#444;font-size:20px;padding-top:80px">→</div>
+
+    <!-- MIDDLE: management_fees + tracks -->
+    <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start">
+
+      <!-- management_fees -->
+      <div style="background:#0a1a0f;border:2px solid #4ade80;border-radius:8px;padding:12px;min-width:200px">
+        <div style="color:#4ade80;font-weight:700;margin-bottom:8px;font-size:12px">⭐ management_fees</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#ccc">payment_id → payments</div>
+        <div style="color:#999">net_base numeric <span style="color:#888">← computed</span></div>
+        <div style="color:#999">commission_rate numeric <span style="color:#888">default 0.15</span></div>
+        <div style="color:#ccc">is_commissionable bool</div>
+        <div style="color:#999">commission_due numeric <span style="color:#888">← computed</span></div>
+        <div style="color:#888">status: projetée | due | versée</div>
+        <div style="color:#888">already_paid_to_manager numeric</div>
+        <div style="color:#888">commission_start_date date</div>
+      </div>
+
+      <!-- tracks -->
+      <div style="background:#0a0f1a;border:2px solid #60a5fa;border-radius:8px;padding:12px;min-width:200px">
+        <div style="color:#60a5fa;font-weight:700;margin-bottom:8px;font-size:12px">⭐ tracks</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#999">title text</div>
+        <div style="color:#999">release_date date?</div>
+        <div style="color:#ccc">is_commissionable bool</div>
+        <div style="color:#888">is_commissionable_since date</div>
+        <div style="color:#888">sacem_status:</div>
+        <div style="color:#888">&nbsp;non_déclaré|programme_en_draft</div>
+        <div style="color:#888">&nbsp;|déclaré|étranger|non_applicable</div>
+        <div style="color:#888">sacem_declared_at date?</div>
+        <div style="color:#888">sacem_received_at date? <span style="color:#888">← dérivé</span></div>
+        <div style="color:#888">notes text?</div>
+      </div>
+
+      <!-- sacem_statements -->
+      <div style="background:#1a1a1a;border:1px solid #444;border-radius:8px;padding:12px;min-width:180px;opacity:0.8">
+        <div style="color:#666;font-weight:700;margin-bottom:8px;font-size:12px">sacem_statements</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#555">period text</div>
+        <div style="color:#555">imported_at timestamptz</div>
+        <div style="color:#555">source_file text?</div>
+      </div>
+
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:180px;opacity:0.8">
+        <div style="color:#666;font-weight:700;margin-bottom:8px;font-size:12px">sacem_statement_lines</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#555">statement_id → sacem_statements</div>
+        <div style="color:#555">track_id → tracks?</div>
+        <div style="color:#555">raw_title text</div>
+        <div style="color:#555">amount numeric</div>
+        <div style="color:#555">matched bool</div>
+      </div>
+
+    </div>
+
+    <!-- Flèches -->
+    <div style="display:flex;flex-direction:column;justify-content:center;color:#444;font-size:20px;padding-top:60px">→</div>
+
+    <!-- RIGHT: secondary tables -->
+    <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start">
+
+      <!-- profiles -->
+      <div style="background:#1a1a1a;border:1px solid #555;border-radius:8px;padding:12px;min-width:170px">
+        <div style="color:#aaa;font-weight:700;margin-bottom:8px;font-size:12px">profiles</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#ccc">user_id → auth.users</div>
+        <div style="color:#999">display_name text</div>
+        <div style="color:#888">role: manager | artist</div>
+        <div style="color:#888">onboarded bool</div>
+        <div style="color:#888">commission_start_date date</div>
+      </div>
+
+      <!-- events -->
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:170px">
+        <div style="color:#888;font-weight:700;margin-bottom:8px;font-size:12px">events</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#999">title text</div>
+        <div style="color:#888">event_date date</div>
+        <div style="color:#888">location text?</div>
+        <div style="color:#888">type: concert|répétition|résidence</div>
+        <div style="color:#888">status: confirmé|annulé|TBC</div>
+        <div style="color:#888">gcal_event_id text?</div>
+      </div>
+
+      <!-- tasks -->
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:170px">
+        <div style="color:#888;font-weight:700;margin-bottom:8px;font-size:12px">tasks</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#999">title text</div>
+        <div style="color:#888">assignee_role: manager|artist</div>
+        <div style="color:#888">priority: normal|urgent</div>
+        <div style="color:#888">status: à_faire|en_cours|fait</div>
+        <div style="color:#888">deadline date?</div>
+        <div style="color:#888">payment_id → payments?</div>
+      </div>
+
+      <!-- grants (Phase 1) -->
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px;min-width:170px">
+        <div style="color:#888;font-weight:700;margin-bottom:8px;font-size:12px">grants (subventions)</div>
+        <div style="color:#888">id uuid PK</div>
+        <div style="color:#999">title text</div>
+        <div style="color:#888">organisme text</div>
+        <div style="color:#888">categorie text</div>
+        <div style="color:#888">status: à_instruire|déposé|...</div>
+        <div style="color:#888">montant_max numeric?</div>
+        <div style="color:#888">deadline_depot date?</div>
+        <div style="color:#888">structure_required bool</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid #222;display:flex;gap:24px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border:2px solid #f59e0b;border-radius:2px"></div><span style="color:#888">Priorité Phase 1</span></div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border:2px solid #4ade80;border-radius:2px"></div><span style="color:#888">Priorité Phase 1</span></div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border:2px solid #60a5fa;border-radius:2px"></div><span style="color:#888">Priorité Phase 1</span></div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border:1px solid #444;border-radius:2px;opacity:0.6"></div><span style="color:#888">Phase 1 (plus simple)</span></div>
+  </div>
+
+</div>
+
+<div style="margin-top:20px" class="section">
+  <h3>Règles de calcul importantes</h3>
+  <ul style="color:#888;font-size:12px;line-height:2">
+    <li><strong style="color:#ccc">expires_at</strong> : calculé automatiquement = payment_date + 12 mois (trigger Postgres)</li>
+    <li><strong style="color:#ccc">net_base</strong> : payment.amount − payment.deductible_expenses</li>
+    <li><strong style="color:#ccc">commission_due</strong> : net_base × commission_rate × (is_commissionable ? 1 : 0)</li>
+    <li><strong style="color:#ccc">is_commissionable sur management_fees</strong> : hérité du track lié (si présent) — sinon true par défaut</li>
+    <li><strong style="color:#ccc">Reste dû</strong> : Σ commission_due (status=due) + Σ expenses (à_rembourser) − Σ already_paid_to_manager</li>
+    <li><strong style="color:#ccc">Cachets valides</strong> : COUNT(payments WHERE status=payé AND expires_at > now() AND counts_for_intermittence=true) + SUM(batch_count) pour les lots</li>
+  </ul>
+</div>

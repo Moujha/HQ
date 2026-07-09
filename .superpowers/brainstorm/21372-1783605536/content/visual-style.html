@@ -1,0 +1,104 @@
+<h2>Quelle direction visuelle pour l'app ?</h2>
+<p class="subtitle">Trois ambiances distinctes — aucune couleur finale, juste la direction générale</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="dark-pro" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;padding:20px;border-radius:8px;min-height:160px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:0.05em">BLOU FEET</span>
+        <span style="color:#888;font-size:11px">Juillet 2026</span>
+      </div>
+      <div style="background:#1a1a1a;border-radius:6px;padding:14px">
+        <div style="color:#888;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Reste dû</div>
+        <div style="color:#fff;font-size:24px;font-weight:700">4 280 €</div>
+        <div style="color:#4ade80;font-size:11px;margin-top:2px">+340 € ce mois</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px;text-align:center">
+          <div style="color:#fff;font-size:15px;font-weight:600">12</div>
+          <div style="color:#666;font-size:10px">cachets</div>
+        </div>
+        <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px;text-align:center">
+          <div style="color:#f59e0b;font-size:15px;font-weight:600">3</div>
+          <div style="color:#666;font-size:10px">expirent</div>
+        </div>
+        <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px;text-align:center">
+          <div style="color:#fff;font-size:15px;font-weight:600">87%</div>
+          <div style="color:#666;font-size:10px">contrôle</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dark Pro</h3>
+      <p>Fond noir, chiffres blancs, accents vert/ambre. Style back-office financier, dense, sérieux. Confortable pour du suivi de chiffres la nuit.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="light-clean" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f7f4;padding:20px;border-radius:8px;min-height:160px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#1a1a1a;font-weight:700;font-size:14px;letter-spacing:0.05em">BLOU FEET</span>
+        <span style="color:#999;font-size:11px">Juillet 2026</span>
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <div style="color:#999;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Reste dû</div>
+        <div style="color:#1a1a1a;font-size:24px;font-weight:700">4 280 €</div>
+        <div style="color:#16a34a;font-size:11px;margin-top:2px">+340 € ce mois</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+          <div style="color:#1a1a1a;font-size:15px;font-weight:600">12</div>
+          <div style="color:#aaa;font-size:10px">cachets</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+          <div style="color:#d97706;font-size:15px;font-weight:600">3</div>
+          <div style="color:#aaa;font-size:10px">expirent</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+          <div style="color:#1a1a1a;font-size:15px;font-weight:600">87%</div>
+          <div style="color:#aaa;font-size:10px">contrôle</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Light Clean</h3>
+      <p>Fond crème/blanc, typographie noire, ombres légères. Lisible, neutre, facile à lire en journée. Look "outil pro" classique.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="warm-accent" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafaf8;padding:20px;border-radius:8px;min-height:160px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#1a1a1a;font-weight:700;font-size:14px;letter-spacing:0.05em">BLOU FEET</span>
+        <span style="background:#6d28d9;color:#fff;font-size:10px;padding:2px 8px;border-radius:20px">manager</span>
+      </div>
+      <div style="background:linear-gradient(135deg,#6d28d9,#4f46e5);border-radius:6px;padding:14px">
+        <div style="color:rgba(255,255,255,0.7);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Reste dû</div>
+        <div style="color:#fff;font-size:24px;font-weight:700">4 280 €</div>
+        <div style="color:rgba(255,255,255,0.8);font-size:11px;margin-top:2px">+340 € ce mois</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;border:1px solid #f0eef8">
+          <div style="color:#4f46e5;font-size:15px;font-weight:600">12</div>
+          <div style="color:#aaa;font-size:10px">cachets</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;border:1px solid #f0eef8">
+          <div style="color:#d97706;font-size:15px;font-weight:600">3</div>
+          <div style="color:#aaa;font-size:10px">expirent</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:6px;padding:10px;text-align:center;border:1px solid #f0eef8">
+          <div style="color:#4f46e5;font-size:15px;font-weight:600">87%</div>
+          <div style="color:#aaa;font-size:10px">contrôle</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Violet Accent</h3>
+      <p>Base blanche, accent violet/indigo (couleur "musique indé"). Header coloré pour les chiffres clés, reste sobre. Distinctif sans être chargé.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;text-align:center">Clique sur une direction, ou dis-moi dans le terminal si aucune ne te convient</p>

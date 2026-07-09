@@ -1,0 +1,11 @@
+{"type":"server-started","port":52410,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:52410","screen_dir":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content","state_dir":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/state"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/welcome.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/visual-style.html"}
+{"source":"user-event","type":"click","text":"BLOU FEET\n        Juillet 2026\n      \n      \n        Reste dû\n        4 280 €\n        +340 € ce mois\n      \n      \n        \n          12\n          cachets\n        \n        \n          3\n          expirent\n        \n        \n          87%\n          contrôle\n        \n      \n    \n    \n      A — Dark Pro\n      Fond noir, chiffres blancs, accents vert/ambre. Style back-office financier, dense, sérieux. Confortable pour du suivi de chiffres la nuit.","choice":"dark-pro","id":null,"timestamp":1783605727701}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/navigation.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/mobile-layout.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/waiting-1.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/data-model.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/ux-cachets-fees.html"}
+{"type":"screen-added","file":"/Users/paulbourdon/rapsodie/code/management-app/.superpowers/brainstorm/21372-1783605536/content/auth-roles.html"}
+{"type":"server-stopped","reason":"idle timeout"}

@@ -1,0 +1,129 @@
+<h2>Structure de navigation</h2>
+<p class="subtitle">Comment organiser les modules dans la sidebar — Qonto utilise une sidebar gauche fixe</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="grouped" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;border-radius:8px;overflow:hidden;display:flex;min-height:200px;font-size:11px">
+      <!-- Sidebar -->
+      <div style="width:180px;background:#141414;border-right:1px solid #222;padding:12px 0;display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+        <div style="padding:10px 14px 16px;color:#fff;font-weight:700;font-size:12px;letter-spacing:0.06em;border-bottom:1px solid #222;margin-bottom:8px">BLOU FEET</div>
+        <div style="padding:6px 14px;color:#888;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px">Finances</div>
+        <div style="padding:7px 14px;background:#1f1f1f;border-radius:4px;margin:0 6px;color:#fff;display:flex;gap:8px;align-items:center"><span>💰</span> Cachets</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📊</span> Fees & Commission</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📄</span> Factures</div>
+        <div style="padding:6px 14px;color:#888;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px">Organisation</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>✓</span> Tâches</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📅</span> Calendrier</div>
+        <div style="padding:6px 14px;color:#888;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px">Catalogue</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>🎵</span> Tracks</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>🏛</span> Subventions</div>
+      </div>
+      <!-- Content area -->
+      <div style="flex:1;padding:16px;background:#0f0f0f">
+        <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:12px">Cachets</div>
+        <div style="background:#1a1a1a;border-radius:6px;padding:12px;margin-bottom:8px">
+          <div style="color:#888;font-size:9px;text-transform:uppercase;letter-spacing:0.08em">Cachets valides</div>
+          <div style="color:#fff;font-size:20px;font-weight:700;margin-top:2px">12 <span style="color:#4ade80;font-size:11px">actifs</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Expirent &lt;60j</div>
+            <div style="color:#f59e0b;font-weight:600;margin-top:2px">3</div>
+          </div>
+          <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Provisoires</div>
+            <div style="color:#666;font-weight:600;margin-top:2px">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Sidebar groupée (recommandé)</h3>
+      <p>Modules groupés par thème : Finances / Organisation / Catalogue. Identique à Qonto. Extensible sans encombrer.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="flat" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;border-radius:8px;overflow:hidden;display:flex;min-height:200px;font-size:11px">
+      <!-- Sidebar flat -->
+      <div style="width:56px;background:#141414;border-right:1px solid #222;padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:16px;border-bottom:1px solid #222;width:100%;text-align:center;padding-bottom:12px">B</div>
+        <div style="padding:8px;background:#1f1f1f;border-radius:6px;font-size:16px" title="Cachets">💰</div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Fees">📊</div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Factures">📄</div>
+        <div style="width:100%;height:1px;background:#222;margin:8px 0"></div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Tâches">✓</div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Calendrier">📅</div>
+        <div style="width:100%;height:1px;background:#222;margin:8px 0"></div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Tracks">🎵</div>
+        <div style="padding:8px;color:#444;font-size:16px" title="Subventions">🏛</div>
+      </div>
+      <!-- Content area -->
+      <div style="flex:1;padding:16px;background:#0f0f0f">
+        <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:4px">Cachets</div>
+        <div style="color:#888;font-size:10px;margin-bottom:12px">Suivi de l'intermittence</div>
+        <div style="background:#1a1a1a;border-radius:6px;padding:12px;margin-bottom:8px">
+          <div style="color:#888;font-size:9px;text-transform:uppercase;letter-spacing:0.08em">Cachets valides</div>
+          <div style="color:#fff;font-size:20px;font-weight:700;margin-top:2px">12 <span style="color:#4ade80;font-size:11px">actifs</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Expirent &lt;60j</div>
+            <div style="color:#f59e0b;font-weight:600;margin-top:2px">3</div>
+          </div>
+          <div style="flex:1;background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Provisoires</div>
+            <div style="color:#666;font-weight:600;margin-top:2px">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Sidebar icônes (compacte)</h3>
+      <p>Icônes seules, tooltip au hover. Maximise l'espace du contenu. Moins lisible, surtout depuis le téléphone de l'artiste.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dashboard-first" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;border-radius:8px;overflow:hidden;display:flex;min-height:200px;font-size:11px">
+      <!-- Sidebar with dashboard -->
+      <div style="width:180px;background:#141414;border-right:1px solid #222;padding:12px 0;display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+        <div style="padding:10px 14px 16px;color:#fff;font-weight:700;font-size:12px;letter-spacing:0.06em;border-bottom:1px solid #222;margin-bottom:8px">BLOU FEET</div>
+        <div style="padding:7px 14px;background:#1f1f1f;border-radius:4px;margin:0 6px;color:#fff;display:flex;gap:8px;align-items:center"><span>⬛</span> Dashboard</div>
+        <div style="width:100%;height:1px;background:#1f1f1f;margin:8px 0"></div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>💰</span> Cachets</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📊</span> Fees</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📄</span> Factures</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>✓</span> Tâches</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>📅</span> Calendrier</div>
+        <div style="padding:7px 14px;color:#666;display:flex;gap:8px;align-items:center;margin:0 6px"><span>🎵</span> Tracks</div>
+      </div>
+      <!-- Content: dashboard -->
+      <div style="flex:1;padding:16px;background:#0f0f0f">
+        <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:12px">Vue d'ensemble</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#1a1a1a;border-radius:6px;padding:10px;grid-column:span 2">
+            <div style="color:#888;font-size:9px">Reste dû manager</div>
+            <div style="color:#fff;font-size:18px;font-weight:700">4 280 €</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Cachets valides</div>
+            <div style="color:#4ade80;font-weight:700">12</div>
+          </div>
+          <div style="background:#1a1a1a;border-radius:6px;padding:10px">
+            <div style="color:#888;font-size:9px">Alertes</div>
+            <div style="color:#f59e0b;font-weight:700">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Dashboard d'entrée</h3>
+      <p>Écran d'accueil synthétique (vue d'ensemble), puis modules individuels dans la sidebar. Vue "pilotage" pour Paul, vue simplifiée pour l'artiste.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;text-align:center">Ces deux questions (style + nav) peuvent se combiner — ex: A+C = Dark Pro avec dashboard d'entrée</p>
