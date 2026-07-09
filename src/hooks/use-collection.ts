@@ -1,45 +1,50 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Generic realtime-backed collection hook. Fetches a table ordered by `orderBy`
-// and live-syncs via Postgres changes so both users see updates instantly.
-//
-// Instant local updates: mutations dispatch a "mc-refresh" window event (via
-// refreshCollections()), so a user's own action (new demande / tâche / news)
-// is reflected on screen immediately, even if the realtime channel is slow.
-//
-// For weak/offline connections, the last successful result is cached in
-// localStorage and used as the initial value + fallback when a fetch fails.
+// Generic realtime-backed collection hook with optional select (for joins),
+// filter, and order. Caches last result in localStorage for offline resilience.
 
-const cacheKey = (table: string) => `mc-cache:${table}`;
+const cacheKey = (table: string, select: string) => `mc-cache:${table}:${select}`;
 
-function readCache<T>(table: string): T[] {
+function readCache<T>(key: string): T[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(cacheKey(table));
+    const raw = window.localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T[]) : [];
   } catch {
     return [];
   }
 }
 
-function writeCache<T>(table: string, rows: T[]) {
+function writeCache<T>(key: string, rows: T[]) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(cacheKey(table), JSON.stringify(rows));
+    window.localStorage.setItem(key, JSON.stringify(rows));
   } catch {
     // storage full / unavailable — ignore
   }
 }
 
+interface CollectionOptions {
+  select?: string;
+  order?: { column: string; ascending?: boolean };
+  filter?: Record<string, string | number | boolean>;
+}
+
 export function useCollection<T = any>(
   table: string,
-  orderBy: { column: string; ascending?: boolean } = {
-    column: "created_at",
-    ascending: false,
-  },
+  opts: CollectionOptions | { column: string; ascending?: boolean } = {},
 ) {
-  const [data, setData] = useState<T[]>(() => readCache<T>(table));
+  // Normalise: accept legacy { column, ascending } signature too
+  const isLegacy = "column" in opts;
+  const select = (!isLegacy && (opts as CollectionOptions).select) ? (opts as CollectionOptions).select! : "*";
+  const order = isLegacy
+    ? (opts as { column: string; ascending?: boolean })
+    : ((opts as CollectionOptions).order ?? { column: "created_at", ascending: false });
+  const filter = (!isLegacy && (opts as CollectionOptions).filter) ? (opts as CollectionOptions).filter : undefined;
+
+  const ck = cacheKey(table, select);
+  const [data, setData] = useState<T[]>(() => readCache<T>(ck));
   const [loading, setLoading] = useState(true);
   const fetchRef = useRef<() => Promise<void>>(async () => {});
 
@@ -51,17 +56,23 @@ export function useCollection<T = any>(
     let active = true;
 
     const fetchAll = async () => {
-      const { data: rows, error } = await (supabase as any)
-        .from(table)
-        .select("*")
-        .order(orderBy.column, { ascending: orderBy.ascending ?? false });
+      let query = (supabase as any).from(table).select(select);
+
+      if (filter) {
+        for (const [key, value] of Object.entries(filter)) {
+          query = query.eq(key, value);
+        }
+      }
+
+      query = query.order(order.column, { ascending: order.ascending ?? false });
+
+      const { data: rows, error } = await query;
       if (!active) return;
       if (!error && rows) {
         setData(rows as T[]);
-        writeCache<T>(table, rows as T[]);
+        writeCache<T>(ck, rows as T[]);
       } else {
-        // Offline / weak connection: keep the cached copy on screen.
-        setData(readCache<T>(table));
+        setData(readCache<T>(ck));
       }
       setLoading(false);
     };
@@ -69,14 +80,9 @@ export function useCollection<T = any>(
     fetchRef.current = fetchAll;
     fetchAll();
 
-    // Refetch when the auth session becomes available / changes, so the first
-    // render right after sign-in doesn't get stuck on an empty (pre-auth) fetch.
     const { data: authSub } = supabase.auth.onAuthStateChange(() => fetchAll());
 
-    // Explicit refresh fallback: mutations dispatch "mc-refresh" so the list
-    // updates immediately even if the realtime channel is slow or unavailable.
     const onRefresh = () => fetchAll();
-    // Also re-sync when the app/tab regains focus or the connection returns.
     const onVisible = () => {
       if (document.visibilityState === "visible") fetchAll();
     };
@@ -88,12 +94,8 @@ export function useCollection<T = any>(
     }
 
     const channel = supabase
-      .channel(`rt-${table}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table },
-        () => fetchAll(),
-      )
+      .channel(`rt-${table}-${select}`)
+      .on("postgres_changes", { event: "*", schema: "public", table }, () => fetchAll())
       .subscribe();
 
     return () => {
@@ -108,7 +110,7 @@ export function useCollection<T = any>(
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [table, orderBy.column, orderBy.ascending]);
+  }, [table, select, order.column, order.ascending]);
 
   return { data, loading, refresh };
 }
