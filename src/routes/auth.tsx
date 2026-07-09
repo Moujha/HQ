@@ -24,13 +24,8 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/cachets", replace: true });
   }, [user, loading, navigate]);
 
-  if (loading || user) {
-    return (
-      <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-6">
-        <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
-      </div>
-    );
-  }
+  // Return null during loading/redirect — avoids SSR↔client hydration mismatch
+  if (loading || user) return null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +44,12 @@ function AuthPage() {
         if (error) throw error;
       }
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Une erreur est survenue");
+      const msg =
+        err != null && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Une erreur est survenue";
+      toast.error(msg || "Une erreur est survenue (voir console)");
+      console.error("[auth error]", err);
     } finally {
       setBusy(false);
     }
