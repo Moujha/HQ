@@ -22,7 +22,6 @@ import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/f
 import { Route as AuthenticatedFacturesRouteImport } from './routes/_authenticated/factures'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
 import { Route as AuthenticatedCachetsRouteImport } from './routes/_authenticated/cachets'
-import { Route as ApiPublicHooksScrapeNewsRouteImport } from './routes/api/public/hooks/scrape-news'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -89,12 +88,6 @@ const AuthenticatedCachetsRoute = AuthenticatedCachetsRouteImport.update({
   path: '/cachets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicHooksScrapeNewsRoute =
-  ApiPublicHooksScrapeNewsRouteImport.update({
-    id: '/api/public/hooks/scrape-news',
-    path: '/api/public/hooks/scrape-news',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,7 +102,6 @@ export interface FileRoutesByFullPath {
   '/taches': typeof AuthenticatedTachesRoute
   '/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
-  '/api/public/hooks/scrape-news': typeof ApiPublicHooksScrapeNewsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -124,7 +116,6 @@ export interface FileRoutesByTo {
   '/taches': typeof AuthenticatedTachesRoute
   '/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
-  '/api/public/hooks/scrape-news': typeof ApiPublicHooksScrapeNewsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,7 +132,6 @@ export interface FileRoutesById {
   '/_authenticated/taches': typeof AuthenticatedTachesRoute
   '/_authenticated/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
-  '/api/public/hooks/scrape-news': typeof ApiPublicHooksScrapeNewsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -158,7 +148,6 @@ export interface FileRouteTypes {
     | '/taches'
     | '/tracks'
     | '/email/unsubscribe'
-    | '/api/public/hooks/scrape-news'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -173,7 +162,6 @@ export interface FileRouteTypes {
     | '/taches'
     | '/tracks'
     | '/email/unsubscribe'
-    | '/api/public/hooks/scrape-news'
   id:
     | '__root__'
     | '/'
@@ -189,7 +177,6 @@ export interface FileRouteTypes {
     | '/_authenticated/taches'
     | '/_authenticated/tracks'
     | '/email/unsubscribe'
-    | '/api/public/hooks/scrape-news'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -198,7 +185,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
-  ApiPublicHooksScrapeNewsRoute: typeof ApiPublicHooksScrapeNewsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -294,13 +280,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCachetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/hooks/scrape-news': {
-      id: '/api/public/hooks/scrape-news'
-      path: '/api/public/hooks/scrape-news'
-      fullPath: '/api/public/hooks/scrape-news'
-      preLoaderRoute: typeof ApiPublicHooksScrapeNewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -335,7 +314,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
-  ApiPublicHooksScrapeNewsRoute: ApiPublicHooksScrapeNewsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
