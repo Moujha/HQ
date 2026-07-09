@@ -19,7 +19,7 @@ const schema = z.object({
   territory: z.enum(["france", "étranger"]),
   status: z.enum(["provisoire", "facturé", "cachet_en_attente", "payé"]),
   counts_for_intermittence: z.boolean(),
-  deductible_expenses: z.coerce.number().min(0).default(0),
+  deductible_expenses: z.coerce.number().min(0),
 });
 
 type FormValues = z.infer<typeof schema>;

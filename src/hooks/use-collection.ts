@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 // Generic realtime-backed collection hook with optional select (for joins),
 // filter, and order. Caches last result in localStorage for offline resilience.
 
-const cacheKey = (table: string, select: string) => `mc-cache:${table}:${select}`;
+const cacheKey = (table: string, select: string, filter?: Record<string, string | number | boolean>) =>
+  `mc-cache:${table}:${select}${filter ? `:${JSON.stringify(filter)}` : ""}`;
 
 function readCache<T>(key: string): T[] {
   if (typeof window === "undefined") return [];
@@ -43,7 +44,7 @@ export function useCollection<T = any>(
     : ((opts as CollectionOptions).order ?? { column: "created_at", ascending: false });
   const filter = (!isLegacy && (opts as CollectionOptions).filter) ? (opts as CollectionOptions).filter : undefined;
 
-  const ck = cacheKey(table, select);
+  const ck = cacheKey(table, select, filter);
   const [data, setData] = useState<T[]>(() => readCache<T>(ck));
   const [loading, setLoading] = useState(true);
   const fetchRef = useRef<() => Promise<void>>(async () => {});

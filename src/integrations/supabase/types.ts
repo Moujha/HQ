@@ -7,663 +7,468 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
-      activity_log: {
-        Row: {
-          action: string
-          created_at: string
-          detail: string | null
-          entity_id: string | null
-          entity_type: string
-          id: string
-          title: string
-          user_id: string | null
-          user_name: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string
-          detail?: string | null
-          entity_id?: string | null
-          entity_type: string
-          id?: string
-          title: string
-          user_id?: string | null
-          user_name?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string
-          detail?: string | null
-          entity_id?: string | null
-          entity_type?: string
-          id?: string
-          title?: string
-          user_id?: string | null
-          user_name?: string | null
-        }
-        Relationships: []
-      }
-      comments: {
-        Row: {
-          author_id: string | null
-          author_name: string | null
-          content: string
-          created_at: string
-          entity_id: string
-          entity_type: string
-          id: string
-        }
-        Insert: {
-          author_id?: string | null
-          author_name?: string | null
-          content: string
-          created_at?: string
-          entity_id: string
-          entity_type: string
-          id?: string
-        }
-        Update: {
-          author_id?: string | null
-          author_name?: string | null
-          content?: string
-          created_at?: string
-          entity_id?: string
-          entity_type?: string
-          id?: string
-        }
-        Relationships: []
-      }
-      decisions: {
-        Row: {
-          amount: string | null
-          category: string
-          company: string | null
-          contact_email: string | null
-          contact_name: string | null
-          created_at: string
-          created_by: string | null
-          deadline: string | null
-          description: string | null
-          email_content: string | null
-          email_from: string | null
-          email_subject: string | null
-          email_summary: string | null
-          id: string
-          internal_note: string | null
-          location: string | null
-          priority: string
-          received_at: string
-          source: string
-          status: string
-          summary: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          amount?: string | null
-          category?: string
-          company?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          created_at?: string
-          created_by?: string | null
-          deadline?: string | null
-          description?: string | null
-          email_content?: string | null
-          email_from?: string | null
-          email_subject?: string | null
-          email_summary?: string | null
-          id?: string
-          internal_note?: string | null
-          location?: string | null
-          priority?: string
-          received_at?: string
-          source?: string
-          status?: string
-          summary?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: string | null
-          category?: string
-          company?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          created_at?: string
-          created_by?: string | null
-          deadline?: string | null
-          description?: string | null
-          email_content?: string | null
-          email_from?: string | null
-          email_subject?: string | null
-          email_summary?: string | null
-          id?: string
-          internal_note?: string | null
-          location?: string | null
-          priority?: string
-          received_at?: string
-          source?: string
-          status?: string
-          summary?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      email_send_log: {
-        Row: {
-          created_at: string
-          error_message: string | null
-          id: string
-          message_id: string | null
-          metadata: Json | null
-          recipient_email: string
-          status: string
-          template_name: string
-        }
-        Insert: {
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          message_id?: string | null
-          metadata?: Json | null
-          recipient_email: string
-          status: string
-          template_name: string
-        }
-        Update: {
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          message_id?: string | null
-          metadata?: Json | null
-          recipient_email?: string
-          status?: string
-          template_name?: string
-        }
-        Relationships: []
-      }
-      email_send_state: {
-        Row: {
-          auth_email_ttl_minutes: number
-          batch_size: number
-          id: number
-          retry_after_until: string | null
-          send_delay_ms: number
-          transactional_email_ttl_minutes: number
-          updated_at: string
-        }
-        Insert: {
-          auth_email_ttl_minutes?: number
-          batch_size?: number
-          id?: number
-          retry_after_until?: string | null
-          send_delay_ms?: number
-          transactional_email_ttl_minutes?: number
-          updated_at?: string
-        }
-        Update: {
-          auth_email_ttl_minutes?: number
-          batch_size?: number
-          id?: number
-          retry_after_until?: string | null
-          send_delay_ms?: number
-          transactional_email_ttl_minutes?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      email_unsubscribe_tokens: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          token: string
-          used_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          token: string
-          used_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          token?: string
-          used_at?: string | null
-        }
-        Relationships: []
-      }
-      firecrawl_usage_log: {
-        Row: {
-          created_at: string
-          credits_used: number
-          id: string
-          remaining_credits: number | null
-          source: string
-        }
-        Insert: {
-          created_at?: string
-          credits_used?: number
-          id?: string
-          remaining_credits?: number | null
-          source?: string
-        }
-        Update: {
-          created_at?: string
-          credits_used?: number
-          id?: string
-          remaining_credits?: number | null
-          source?: string
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          body: string | null
-          created_at: string
-          created_by: string | null
-          id: string
-          is_read: boolean
-          link_id: string | null
-          link_type: string | null
-          recipient_role: string
-          title: string
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_read?: boolean
-          link_id?: string | null
-          link_type?: string | null
-          recipient_role: string
-          title: string
-        }
-        Update: {
-          body?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_read?: boolean
-          link_id?: string | null
-          link_type?: string | null
-          recipient_role?: string
-          title?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
-          created_at: string
+          id: string
+          user_id: string
           display_name: string
-          id: string
+          role: "manager" | "artist"
           onboarded: boolean
-          role: string
-          user_id: string
+          commission_start_date: string | null
         }
         Insert: {
-          created_at?: string
-          display_name?: string
           id?: string
-          onboarded?: boolean
-          role?: string
           user_id: string
+          display_name?: string
+          role?: "manager" | "artist"
+          onboarded?: boolean
+          commission_start_date?: string | null
         }
         Update: {
-          created_at?: string
-          display_name?: string
           id?: string
-          onboarded?: boolean
-          role?: string
           user_id?: string
+          display_name?: string
+          role?: "manager" | "artist"
+          onboarded?: boolean
+          commission_start_date?: string | null
         }
         Relationships: []
       }
-      push_subscriptions: {
+      payment_batches: {
         Row: {
-          auth: string
-          created_at: string
-          endpoint: string
           id: string
-          p256dh: string
+          label: string | null
+          batch_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          label?: string | null
+          batch_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string | null
+          batch_count?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      tracks: {
+        Row: {
+          id: string
+          title: string
+          release_date: string | null
+          is_commissionable: boolean
+          is_commissionable_since: string | null
+          sacem_status: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
+          sacem_declared_at: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          release_date?: string | null
+          is_commissionable?: boolean
+          is_commissionable_since?: string | null
+          sacem_status?: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
+          sacem_declared_at?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          release_date?: string | null
+          is_commissionable?: boolean
+          is_commissionable_since?: string | null
+          sacem_status?: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
+          sacem_declared_at?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          id: string
+          title: string
+          event_date: string
+          location: string | null
+          type: "concert" | "répétition" | "résidence" | "autre" | null
+          status: "confirmé" | "TBC" | "annulé"
+          gcal_event_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          event_date: string
+          location?: string | null
+          type?: "concert" | "répétition" | "résidence" | "autre" | null
+          status?: "confirmé" | "TBC" | "annulé"
+          gcal_event_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          event_date?: string
+          location?: string | null
+          type?: "concert" | "répétition" | "résidence" | "autre" | null
+          status?: "confirmé" | "TBC" | "annulé"
+          gcal_event_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          id: string
+          artist_id: string
+          track_id: string | null
+          batch_id: string | null
+          event_id: string | null
+          amount: number
+          payment_date: string | null
+          expires_at: string | null
+          status: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
+          source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          territory: "france" | "étranger"
+          counts_for_intermittence: boolean
+          deductible_expenses: number
+          notes: string | null
+          created_by: string | null
+          created_at: string
           updated_at: string
-          user_agent: string | null
-          user_id: string
         }
         Insert: {
-          auth: string
-          created_at?: string
-          endpoint: string
           id?: string
-          p256dh: string
+          artist_id: string
+          track_id?: string | null
+          batch_id?: string | null
+          event_id?: string | null
+          amount: number
+          payment_date?: string | null
+          expires_at?: string | null
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
+          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          territory?: "france" | "étranger"
+          counts_for_intermittence?: boolean
+          deductible_expenses?: number
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
           updated_at?: string
-          user_agent?: string | null
-          user_id: string
         }
         Update: {
-          auth?: string
-          created_at?: string
-          endpoint?: string
           id?: string
-          p256dh?: string
+          artist_id?: string
+          track_id?: string | null
+          batch_id?: string | null
+          event_id?: string | null
+          amount?: number
+          payment_date?: string | null
+          expires_at?: string | null
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
+          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          territory?: "france" | "étranger"
+          counts_for_intermittence?: boolean
+          deductible_expenses?: number
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
           updated_at?: string
-          user_agent?: string | null
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          { foreignKeyName: "payments_artist_id_fkey"; columns: ["artist_id"]; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "payments_track_id_fkey"; columns: ["track_id"]; referencedRelation: "tracks"; referencedColumns: ["id"] },
+          { foreignKeyName: "payments_batch_id_fkey"; columns: ["batch_id"]; referencedRelation: "payment_batches"; referencedColumns: ["id"] },
+          { foreignKeyName: "payments_event_id_fkey"; columns: ["event_id"]; referencedRelation: "events"; referencedColumns: ["id"] }
+        ]
       }
-      suppressed_emails: {
+      management_fees: {
         Row: {
-          created_at: string
-          email: string
           id: string
-          metadata: Json | null
-          reason: string
+          payment_id: string
+          net_base: number
+          commission_rate: number
+          is_commissionable: boolean
+          commission_due: number
+          status: "projetée" | "due" | "versée"
+          already_paid_to_manager: number
+          created_at: string
         }
         Insert: {
-          created_at?: string
-          email: string
           id?: string
-          metadata?: Json | null
-          reason: string
+          payment_id: string
+          net_base?: number
+          commission_rate?: number
+          is_commissionable?: boolean
+          commission_due?: number
+          status?: "projetée" | "due" | "versée"
+          already_paid_to_manager?: number
+          created_at?: string
         }
         Update: {
-          created_at?: string
-          email?: string
           id?: string
-          metadata?: Json | null
-          reason?: string
+          payment_id?: string
+          net_base?: number
+          commission_rate?: number
+          is_commissionable?: boolean
+          commission_due?: number
+          status?: "projetée" | "due" | "versée"
+          already_paid_to_manager?: number
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "management_fees_payment_id_fkey"; columns: ["payment_id"]; referencedRelation: "payments"; referencedColumns: ["id"] }
+        ]
+      }
+      expenses: {
+        Row: {
+          id: string
+          payment_id: string | null
+          amount: number
+          description: string
+          status: "à_rembourser" | "remboursée"
+          tricount_ref: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          payment_id?: string | null
+          amount: number
+          description: string
+          status?: "à_rembourser" | "remboursée"
+          tricount_ref?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          payment_id?: string | null
+          amount?: number
+          description?: string
+          status?: "à_rembourser" | "remboursée"
+          tricount_ref?: string | null
+          created_at?: string
         }
         Relationships: []
       }
       tasks: {
         Row: {
-          assignee_role: string
-          category: string | null
-          created_at: string
-          created_by: string | null
-          deadline: string | null
-          decision_id: string | null
+          id: string
+          title: string
           description: string | null
-          id: string
-          priority: string
-          status: string
-          title: string
-          updated_at: string
-          veille_id: string | null
-        }
-        Insert: {
-          assignee_role?: string
-          category?: string | null
-          created_at?: string
-          created_by?: string | null
-          deadline?: string | null
-          decision_id?: string | null
-          description?: string | null
-          id?: string
-          priority?: string
-          status?: string
-          title: string
-          updated_at?: string
-          veille_id?: string | null
-        }
-        Update: {
-          assignee_role?: string
-          category?: string | null
-          created_at?: string
-          created_by?: string | null
-          deadline?: string | null
-          decision_id?: string | null
-          description?: string | null
-          id?: string
-          priority?: string
-          status?: string
-          title?: string
-          updated_at?: string
-          veille_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tasks_decision_id_fkey"
-            columns: ["decision_id"]
-            isOneToOne: false
-            referencedRelation: "decisions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_veille_id_fkey"
-            columns: ["veille_id"]
-            isOneToOne: false
-            referencedRelation: "veille"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      veille: {
-        Row: {
-          auto_imported: boolean
+          assignee_role: "manager" | "artist" | "both"
+          priority: "normal" | "urgent"
+          status: "à_faire" | "en_cours" | "fait"
+          deadline: string | null
+          payment_id: string | null
           created_at: string
-          created_by: string | null
-          id: string
-          importance: string
-          internal_note: string | null
-          link: string | null
-          platform: string
-          published_at: string | null
-          source: string | null
-          status: string
-          summary: string | null
-          title: string
-          updated_at: string
         }
         Insert: {
-          auto_imported?: boolean
-          created_at?: string
-          created_by?: string | null
           id?: string
-          importance?: string
-          internal_note?: string | null
-          link?: string | null
-          platform?: string
-          published_at?: string | null
-          source?: string | null
-          status?: string
-          summary?: string | null
           title: string
-          updated_at?: string
+          description?: string | null
+          assignee_role?: "manager" | "artist" | "both"
+          priority?: "normal" | "urgent"
+          status?: "à_faire" | "en_cours" | "fait"
+          deadline?: string | null
+          payment_id?: string | null
+          created_at?: string
         }
         Update: {
-          auto_imported?: boolean
-          created_at?: string
-          created_by?: string | null
           id?: string
-          importance?: string
-          internal_note?: string | null
-          link?: string | null
-          platform?: string
-          published_at?: string | null
-          source?: string | null
-          status?: string
-          summary?: string | null
           title?: string
-          updated_at?: string
+          description?: string | null
+          assignee_role?: "manager" | "artist" | "both"
+          priority?: "normal" | "urgent"
+          status?: "à_faire" | "en_cours" | "fait"
+          deadline?: string | null
+          payment_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      grants: {
+        Row: {
+          id: string
+          title: string
+          organisme: string | null
+          categorie: string | null
+          status: "à_instruire" | "dossier_en_cours" | "déposé" | "obtenu" | "refusé" | "en_attente" | "inéligible"
+          priority: "haute" | "moyenne" | "basse" | null
+          montant_max: number | null
+          deadline_depot: string | null
+          date_depot: string | null
+          resultat_attendu: string | null
+          structure_required: boolean
+          lien_dossier: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          organisme?: string | null
+          categorie?: string | null
+          status?: "à_instruire" | "dossier_en_cours" | "déposé" | "obtenu" | "refusé" | "en_attente" | "inéligible"
+          priority?: "haute" | "moyenne" | "basse" | null
+          montant_max?: number | null
+          deadline_depot?: string | null
+          date_depot?: string | null
+          resultat_attendu?: string | null
+          structure_required?: boolean
+          lien_dossier?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          organisme?: string | null
+          categorie?: string | null
+          status?: "à_instruire" | "dossier_en_cours" | "déposé" | "obtenu" | "refusé" | "en_attente" | "inéligible"
+          priority?: "haute" | "moyenne" | "basse" | null
+          montant_max?: number | null
+          deadline_depot?: string | null
+          date_depot?: string | null
+          resultat_attendu?: string | null
+          structure_required?: boolean
+          lien_dossier?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      sacem_statements: {
+        Row: {
+          id: string
+          period: string
+          imported_at: string
+          source_file: string | null
+        }
+        Insert: {
+          id?: string
+          period: string
+          imported_at?: string
+          source_file?: string | null
+        }
+        Update: {
+          id?: string
+          period?: string
+          imported_at?: string
+          source_file?: string | null
+        }
+        Relationships: []
+      }
+      sacem_statement_lines: {
+        Row: {
+          id: string
+          statement_id: string
+          track_id: string | null
+          raw_title: string
+          amount: number
+          matched: boolean
+        }
+        Insert: {
+          id?: string
+          statement_id: string
+          track_id?: string | null
+          raw_title: string
+          amount: number
+          matched?: boolean
+        }
+        Update: {
+          id?: string
+          statement_id?: string
+          track_id?: string | null
+          raw_title?: string
+          amount?: number
+          matched?: boolean
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string | null
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          endpoint?: string
+          p256dh?: string
+          auth?: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          recipient_role: "manager" | "artist" | "both"
+          title: string
+          body: string | null
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          recipient_role: "manager" | "artist" | "both"
+          title: string
+          body?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          recipient_role?: "manager" | "artist" | "both"
+          title?: string
+          body?: string | null
+          is_read?: boolean
+          created_at?: string
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      current_app_role: { Args: never; Returns: string }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
+      artist_fee_summary: {
+        Row: {
+          artist_id: string
+          total_due: number
+          total_paid: number
+          ndf_pending: number
+          reste_du: number
         }
-        Returns: number
-      }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
+        Relationships: []
       }
     }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    Functions: {}
+    Enums: {}
+    CompositeTypes: {}
   }
 }
-
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const

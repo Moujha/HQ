@@ -1,10 +1,8 @@
-import { useState } from "react";
-import { Bell, Search, LogOut } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { supabase } from "@/integrations/supabase/client";
 import { ROLE_SHORT } from "@/lib/constants";
-import { GlobalSearch } from "./GlobalSearch";
 import {
   Sheet,
   SheetContent,
@@ -26,7 +24,6 @@ interface Notif {
 export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   const { profile, signOut } = useAuth();
   const { data: notifs } = useCollection<Notif>("notifications");
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const mine = notifs.filter((n) => n.recipient_role === profile?.role);
   const unread = mine.filter((n) => !n.is_read).length;
@@ -45,14 +42,6 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-card text-muted-foreground"
-            aria-label="Recherche"
-          >
-            <Search className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
-          </button>
-
           <Sheet onOpenChange={(o) => o && markAllRead()}>
             <SheetTrigger asChild>
               <button
@@ -124,7 +113,6 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
           )}
         </p>
       )}
-      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 }
