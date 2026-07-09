@@ -32,13 +32,25 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Compte créé — vérifie ta boîte mail pour confirmer.");
+        // Ensure profile exists — trigger may not fire on all Supabase plan tiers
+        if (data.user) {
+          await supabase.from("profiles").upsert(
+            {
+              user_id: data.user.id,
+              display_name: email.split("@")[0],
+              role: "manager",
+            },
+            { onConflict: "user_id", ignoreDuplicates: true }
+          );
+        }
+        toast.success("Compte créé — connecte-toi maintenant.");
+        setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
