@@ -15,10 +15,12 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 -- Auto-create profile on signup
+-- SET search_path = public is required: SECURITY DEFINER functions run with a
+-- restricted search_path that excludes public by default in Supabase.
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (user_id, display_name, role)
+  INSERT INTO public.profiles (user_id, display_name, role)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
@@ -27,7 +29,7 @@ BEGIN
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
