@@ -114,7 +114,7 @@ function FinancePage() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 gap-3">
           <Link
-            to="/cachets"
+            to="/finance/cachets"
             className="rounded-2xl border border-border bg-card px-4 py-4 transition active:scale-[0.98]"
           >
             <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
