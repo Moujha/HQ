@@ -126,7 +126,7 @@ function FinancePage() {
             <p className="text-xs text-muted-foreground">{validHours} h valides</p>
           </Link>
           <Link
-            to="/fees"
+            to="/finance/fees"
             className="rounded-2xl border border-border bg-card px-4 py-4 transition active:scale-[0.98]"
           >
             <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
