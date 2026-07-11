@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 const schema = z.object({
   title: z.string().min(1, "Requis"),
@@ -35,12 +36,20 @@ interface Props {
 
 export function AddTrackDrawer({ open, onOpenChange, onSuccess }: Props) {
   const [busy, setBusy] = useState(false);
+  const { profile } = useAuth();
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } =
     useForm<FormValues>({
       resolver: zodResolver(schema),
       defaultValues: { is_commissionable: true, sacem_status: "non_déclaré" },
     });
+
+  const releaseDate = watch("release_date");
+
+  useEffect(() => {
+    if (!releaseDate || !profile?.commission_start_date) return;
+    setValue("is_commissionable", releaseDate >= profile.commission_start_date);
+  }, [releaseDate, profile?.commission_start_date, setValue]);
 
   const submit = async (data: FormValues) => {
     setBusy(true);
