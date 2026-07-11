@@ -1,4 +1,5 @@
-import { Bell, LogOut } from "lucide-react";
+import { Bell, ChevronLeft, LogOut } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +22,7 @@ interface Notif {
   created_at: string;
 }
 
-export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+export function AppHeader({ title, subtitle, backTo }: { title: string; subtitle?: string; backTo?: string }) {
   const { profile, signOut } = useAuth();
   const { data: notifs } = useCollection<Notif>("notifications");
 
@@ -36,7 +37,16 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 px-5 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-xl">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          {backTo && (
+            <Link
+              to={backTo}
+              aria-label="Retour"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border bg-card text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Link>
+          )}
           <div className="min-w-0">
             <h1 className="truncate font-display text-2xl text-foreground">{title}</h1>
           </div>
