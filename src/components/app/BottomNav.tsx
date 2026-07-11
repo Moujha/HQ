@@ -1,8 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Music2,
-  TrendingUp,
-  FileText,
+  Wallet,
   CheckSquare,
   Calendar,
   MoreHorizontal,
@@ -17,17 +16,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const CACHETS = { to: "/cachets", label: "Cachets", icon: Music2 } as const;
-const FEES = { to: "/fees", label: "Fees", icon: TrendingUp } as const;
-const FACTURES = { to: "/factures", label: "Factures", icon: FileText } as const;
+const FINANCE = { to: "/finance", label: "Finance", icon: Wallet } as const;
+const CACHETS = { to: "/finance/cachets", label: "Cachets", icon: Music2 } as const;
 const TACHES = { to: "/taches", label: "Tâches", icon: CheckSquare } as const;
 const CALENDRIER = { to: "/calendrier", label: "Agenda", icon: Calendar } as const;
 
-const MANAGER_PRIMARY = [CACHETS, FEES, FACTURES, TACHES] as const;
+const MANAGER_PRIMARY = [FINANCE, TACHES, CALENDRIER] as const;
 const ARTIST_PRIMARY = [CACHETS, TACHES, CALENDRIER] as const;
 
 const MANAGER_MORE = [
-  { to: "/calendrier", label: "Agenda" },
   { to: "/tracks", label: "Tracks" },
   { to: "/subventions", label: "Subventions" },
 ] as const;
@@ -51,7 +48,10 @@ export function BottomNav() {
     >
       <div className="mx-auto flex max-w-lg items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)] pt-1.5">
         {primaryTabs.map((t) => {
-          const active = pathname.startsWith(t.to);
+          const active =
+            t.to === "/finance"
+              ? pathname.startsWith("/finance")
+              : pathname.startsWith(t.to);
           const Icon = t.icon;
           return (
             <Link
@@ -85,7 +85,10 @@ export function BottomNav() {
                 Plus
               </button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-3xl pb-[env(safe-area-inset-bottom)]">
+            <SheetContent
+              side="bottom"
+              className="rounded-t-3xl pb-[env(safe-area-inset-bottom)]"
+            >
               <SheetHeader className="mb-4">
                 <SheetTitle className="font-display text-lg">Modules</SheetTitle>
               </SheetHeader>
