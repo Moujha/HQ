@@ -54,7 +54,7 @@ export default {
 
     // In Cloudflare Pages Advanced Mode, static assets are NOT served automatically.
     // Try the ASSETS binding first; fall through to SSR only on 404.
-    if (env.ASSETS) {
+    if (env?.ASSETS) {
       try {
         const assetResponse = await env.ASSETS.fetch(request.clone());
         if (assetResponse.status !== 404) return assetResponse;
