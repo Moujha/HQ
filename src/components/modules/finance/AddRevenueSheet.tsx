@@ -37,7 +37,7 @@ const TYPE_OPTIONS: { value: RevenueType; label: string; emoji: string }[] = [
 
 const STATUS_OPTIONS: { value: StatusType; label: string }[] = [
   { value: "provisoire", label: "TBC" },
-  { value: "cachet_en_attente", label: "En attente" },
+  { value: "cachet_en_attente", label: "Confirmé" },
   { value: "payé", label: "Payé" },
 ];
 
