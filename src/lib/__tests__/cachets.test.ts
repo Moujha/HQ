@@ -31,6 +31,10 @@ describe("countValidCachets", () => {
     expect(countValidCachets([make({ status: "cachet_en_attente" })])).toBe(0);
   });
 
+  it("ignores annulé status even with a valid expires_at", () => {
+    expect(countValidCachets([make({ status: "annulé" })])).toBe(0);
+  });
+
   it("ignores counts_for_intermittence=false", () => {
     expect(countValidCachets([make({ counts_for_intermittence: false })])).toBe(0);
   });
@@ -93,6 +97,11 @@ describe("expiringWithin", () => {
 
   it("excludes non-payé", () => {
     const p = make({ status: "provisoire", expires_at: future(10) });
+    expect(expiringWithin([p], 60)).toHaveLength(0);
+  });
+
+  it("excludes annulé", () => {
+    const p = make({ status: "annulé", expires_at: future(10) });
     expect(expiringWithin([p], 60)).toHaveLength(0);
   });
 

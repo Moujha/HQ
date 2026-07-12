@@ -2,7 +2,7 @@ import { addDays, addYears, subMonths } from "date-fns";
 
 export interface PaymentForCachets {
   id: string;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc";
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé";
   counts_for_intermittence: boolean;
   expires_at: string | null;
   payment_date: string | null;
@@ -18,7 +18,7 @@ export interface PaymentForCachets {
  * - Batch: count batch_count once per batch_id (deduplicates multi-payment batches)
  */
 function isValidAt(p: PaymentForCachets, date: Date): boolean {
-  if (p.status === "tbc") return false;
+  if (p.status === "tbc" || p.status === "annulé") return false;
   if (!p.counts_for_intermittence) return false;
   if (p.expires_at) return new Date(p.expires_at) > date;
   if (p.payment_date) {
@@ -63,6 +63,7 @@ export function countValidHours(payments: PaymentForCachets[]): number {
   const valid = payments.filter(
     (p) =>
       p.status !== "tbc" &&
+      p.status !== "annulé" &&
       p.counts_for_intermittence &&
       p.expires_at != null &&
       new Date(p.expires_at) > now,
@@ -113,7 +114,7 @@ function collectUpcoming(payments: PaymentForCachets[]): {
   const seenBatches = new Set<string>();
 
   for (const p of payments) {
-    if (p.status === "payé") continue;
+    if (p.status === "payé" || p.status === "annulé") continue;
     if (!p.counts_for_intermittence) continue;
     if (!p.payment_date) continue;
 
@@ -207,6 +208,7 @@ export function expiringWithin(
   return payments.filter(
     (p) =>
       p.status !== "tbc" &&
+      p.status !== "annulé" &&
       p.expires_at != null &&
       new Date(p.expires_at) > now &&
       new Date(p.expires_at) <= limit
