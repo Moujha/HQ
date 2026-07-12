@@ -14,24 +14,20 @@ export const Route = createFileRoute("/_authenticated/finance/")({
   component: FinancePage,
 });
 
-type FinanceFilter =
-  | "tous"
-  | "cachets"
-  | "sacem"
-  | "label"
-  | "clip"
-  | "résidence"
-  | "à_venir";
+type FinanceFilter = "tous" | "cachets" | "track" | "label" | "à_venir";
 
 const FILTER_LABELS: Record<FinanceFilter, string> = {
   tous: "Tous",
   cachets: "Cachets",
-  sacem: "SACEM",
+  track: "Tracks",
   label: "Label",
-  clip: "Clip",
-  résidence: "Résidence",
   à_venir: "À venir",
 };
+
+const INTERMITTENCE_SOURCES = [
+  "booking", "répétition", "formation", "accompagnement",
+  "figuration", "résidence", "clip",
+] as const;
 
 type FullPayment = RevenueLineData & PaymentForCachets;
 
@@ -85,15 +81,13 @@ function FinancePage() {
   const filtered = useMemo(() => {
     switch (filter) {
       case "cachets":
-        return allPayments.filter((p) => p.source === "booking");
-      case "sacem":
-        return allPayments.filter((p) => p.source === "sacem");
+        return allPayments.filter((p) =>
+          (INTERMITTENCE_SOURCES as readonly string[]).includes(p.source)
+        );
+      case "track":
+        return allPayments.filter((p) => p.source === "track");
       case "label":
         return allPayments.filter((p) => p.source === "label");
-      case "clip":
-        return allPayments.filter((p) => p.source === "clip");
-      case "résidence":
-        return allPayments.filter((p) => p.source === "résidence");
       case "à_venir":
         return allPayments.filter(
           (p) =>

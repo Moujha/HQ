@@ -132,7 +132,6 @@ function CachetsPage() {
       <AddRevenueSheet
         open={addOpen}
         onOpenChange={setAddOpen}
-        initialType="booking"
         onSuccess={refresh}
       />
 

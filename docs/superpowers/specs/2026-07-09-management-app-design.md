@@ -153,12 +153,13 @@ payments (
   event_id uuid → events,
   amount numeric(10,2) NOT NULL,
   payment_date date,
-  expires_at date,                     -- calculé par trigger : payment_date + 12 mois
-  status text NOT NULL CHECK (status IN ('provisoire','facturé','cachet_en_attente','payé')),
-  source text NOT NULL CHECK (source IN ('label','booking','clip','track','résidence','figuration')),
+  expires_at date,                     -- calculé par trigger : payment_date + 12 mois (tous statuts sauf tbc)
+  status text NOT NULL CHECK (status IN ('provisoire','facturé','cachet_en_attente','payé','tbc')),
+  source text NOT NULL CHECK (source IN ('label','booking','clip','track','résidence','figuration','répétition','formation','accompagnement')),
   territory text NOT NULL DEFAULT 'france' CHECK (territory IN ('france','étranger')),
   counts_for_intermittence bool NOT NULL DEFAULT true,
   deductible_expenses numeric(10,2) NOT NULL DEFAULT 0,
+  hours int NOT NULL DEFAULT 12,        -- heures par événement (N cachets = N × 12h)
   notes text,
   created_by uuid → auth.users,
   created_at timestamptz DEFAULT now(),
@@ -399,19 +400,60 @@ Tous encapsulés dans `src/lib/fees.ts` et `src/lib/cachets.ts` — jamais dupli
 
 ```typescript
 // src/lib/cachets.ts
+
+export const HOURS_PER_CACHET = 12;
+export const GOAL_CACHETS = 53;
+export const GOAL_HOURS = 507;
+
+/** Derive cachet count from a payment. Batch takes precedence over hours. */
+export function cachetCountFor(p: { batch_id, batch, hours }): number {
+  if (p.batch_id != null) return p.batch?.batch_count ?? 1;
+  return Math.max(1, Math.round(p.hours / HOURS_PER_CACHET));
+}
+
+/**
+ * Validity for intermittence at a given date.
+ * - tbc : toujours exclu
+ * - counts_for_intermittence doit être true
+ * - expires_at si présent : doit être > date
+ * - sinon : payment_date dans la fenêtre glissante 12 mois
+ */
+function isValidAt(p: Payment, date: Date): boolean {
+  if (p.status === 'tbc') return false;
+  if (!p.counts_for_intermittence) return false;
+  if (p.expires_at) return new Date(p.expires_at) > date;
+  if (p.payment_date) {
+    const pd = new Date(p.payment_date);
+    return pd >= subMonths(date, 12) && pd <= date;
+  }
+  return false;
+}
+
 export function countValidCachets(payments: Payment[]): number {
   const now = new Date();
-  return payments
-    .filter(p => p.status === 'payé' && p.counts_for_intermittence)
-    .filter(p => p.expires_at && new Date(p.expires_at) > now)
-    .reduce((sum, p) => sum + (p.batch?.batch_count ?? 1), 0);
+  const seenBatches = new Set<string>();
+  let total = 0;
+  for (const p of payments) {
+    if (!isValidAt(p, now)) continue;
+    if (p.batch_id == null) {
+      total += cachetCountFor(p);
+    } else if (!seenBatches.has(p.batch_id)) {
+      seenBatches.add(p.batch_id);
+      total += cachetCountFor(p);
+    }
+  }
+  return total;
+}
+
+export function countValidHours(payments: Payment[]): number {
+  // Même logique mais retourne les heures (batch_count × hours par cachet)
 }
 
 export function expiringWithin(payments: Payment[], days: number): Payment[] {
   const now = new Date();
   const limit = addDays(now, days);
   return payments.filter(p =>
-    p.status === 'payé' &&
+    p.status !== 'tbc' &&
     p.expires_at &&
     new Date(p.expires_at) > now &&
     new Date(p.expires_at) <= limit

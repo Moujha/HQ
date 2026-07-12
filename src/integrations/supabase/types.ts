@@ -69,6 +69,7 @@ export type Database = {
           is_commissionable_since: string | null
           sacem_status: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
           sacem_declared_at: string | null
+          sacem_code: string | null
           notes: string | null
           created_at: string
         }
@@ -80,6 +81,7 @@ export type Database = {
           is_commissionable_since?: string | null
           sacem_status?: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
           sacem_declared_at?: string | null
+          sacem_code?: string | null
           notes?: string | null
           created_at?: string
         }
@@ -91,6 +93,7 @@ export type Database = {
           is_commissionable_since?: string | null
           sacem_status?: "non_déclaré" | "programme_en_draft" | "déclaré" | "étranger" | "non_applicable"
           sacem_declared_at?: string | null
+          sacem_code?: string | null
           notes?: string | null
           created_at?: string
         }
@@ -139,11 +142,12 @@ export type Database = {
           amount: number
           payment_date: string | null
           expires_at: string | null
-          status: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
-          source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory: "france" | "étranger"
           counts_for_intermittence: boolean
           deductible_expenses: number
+          hours: number
           notes: string | null
           created_by: string | null
           created_at: string
@@ -158,11 +162,12 @@ export type Database = {
           amount: number
           payment_date?: string | null
           expires_at?: string | null
-          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
-          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory?: "france" | "étranger"
           counts_for_intermittence?: boolean
           deductible_expenses?: number
+          hours?: number
           notes?: string | null
           created_by?: string | null
           created_at?: string
@@ -177,11 +182,12 @@ export type Database = {
           amount?: number
           payment_date?: string | null
           expires_at?: string | null
-          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé"
-          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration"
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory?: "france" | "étranger"
           counts_for_intermittence?: boolean
           deductible_expenses?: number
+          hours?: number
           notes?: string | null
           created_by?: string | null
           created_at?: string
@@ -349,53 +355,44 @@ export type Database = {
         }
         Relationships: []
       }
-      sacem_statements: {
+      payment_lines: {
         Row: {
           id: string
-          period: string
-          imported_at: string
-          source_file: string | null
-        }
-        Insert: {
-          id?: string
-          period: string
-          imported_at?: string
-          source_file?: string | null
-        }
-        Update: {
-          id?: string
-          period?: string
-          imported_at?: string
-          source_file?: string | null
-        }
-        Relationships: []
-      }
-      sacem_statement_lines: {
-        Row: {
-          id: string
-          statement_id: string
+          payment_id: string
           track_id: string | null
+          sacem_code: string | null
           raw_title: string
+          support_type: "streaming" | "plateforme_web" | "live" | "radio_tv" | "sync" | "autre"
           amount: number
-          matched: boolean
+          is_commissionable: boolean
+          created_at: string
         }
         Insert: {
           id?: string
-          statement_id: string
+          payment_id: string
           track_id?: string | null
+          sacem_code?: string | null
           raw_title: string
+          support_type?: "streaming" | "plateforme_web" | "live" | "radio_tv" | "sync" | "autre"
           amount: number
-          matched?: boolean
+          is_commissionable?: boolean
+          created_at?: string
         }
         Update: {
           id?: string
-          statement_id?: string
+          payment_id?: string
           track_id?: string | null
+          sacem_code?: string | null
           raw_title?: string
+          support_type?: "streaming" | "plateforme_web" | "live" | "radio_tv" | "sync" | "autre"
           amount?: number
-          matched?: boolean
+          is_commissionable?: boolean
+          created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          { foreignKeyName: "payment_lines_payment_id_fkey"; columns: ["payment_id"]; referencedRelation: "payments"; referencedColumns: ["id"] },
+          { foreignKeyName: "payment_lines_track_id_fkey"; columns: ["track_id"]; referencedRelation: "tracks"; referencedColumns: ["id"] }
+        ]
       }
       push_subscriptions: {
         Row: {

@@ -18,10 +18,10 @@ import { Route as AuthenticatedTracksRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTachesRouteImport } from './routes/_authenticated/taches'
 import { Route as AuthenticatedSubventionsRouteImport } from './routes/_authenticated/subventions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/fees'
-import { Route as AuthenticatedFacturesRouteImport } from './routes/_authenticated/factures'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
-import { Route as AuthenticatedCachetsRouteImport } from './routes/_authenticated/cachets'
+import { Route as AuthenticatedFinanceIndexRouteImport } from './routes/_authenticated/finance/index'
+import { Route as AuthenticatedFinanceFeesRouteImport } from './routes/_authenticated/finance/fees'
+import { Route as AuthenticatedFinanceCachetsRouteImport } from './routes/_authenticated/finance/cachets'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -68,54 +68,57 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedFeesRoute = AuthenticatedFeesRouteImport.update({
-  id: '/fees',
-  path: '/fees',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedFacturesRoute = AuthenticatedFacturesRouteImport.update({
-  id: '/factures',
-  path: '/factures',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedCalendrierRoute = AuthenticatedCalendrierRouteImport.update({
   id: '/calendrier',
   path: '/calendrier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCachetsRoute = AuthenticatedCachetsRouteImport.update({
-  id: '/cachets',
-  path: '/cachets',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedFinanceIndexRoute =
+  AuthenticatedFinanceIndexRouteImport.update({
+    id: '/finance/',
+    path: '/finance/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceFeesRoute =
+  AuthenticatedFinanceFeesRouteImport.update({
+    id: '/finance/fees',
+    path: '/finance/fees',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceCachetsRoute =
+  AuthenticatedFinanceCachetsRouteImport.update({
+    id: '/finance/cachets',
+    path: '/finance/cachets',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/cachets': typeof AuthenticatedCachetsRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
-  '/factures': typeof AuthenticatedFacturesRoute
-  '/fees': typeof AuthenticatedFeesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subventions': typeof AuthenticatedSubventionsRoute
   '/taches': typeof AuthenticatedTachesRoute
   '/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/finance/cachets': typeof AuthenticatedFinanceCachetsRoute
+  '/finance/fees': typeof AuthenticatedFinanceFeesRoute
+  '/finance/': typeof AuthenticatedFinanceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/cachets': typeof AuthenticatedCachetsRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
-  '/factures': typeof AuthenticatedFacturesRoute
-  '/fees': typeof AuthenticatedFeesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subventions': typeof AuthenticatedSubventionsRoute
   '/taches': typeof AuthenticatedTachesRoute
   '/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/finance/cachets': typeof AuthenticatedFinanceCachetsRoute
+  '/finance/fees': typeof AuthenticatedFinanceFeesRoute
+  '/finance': typeof AuthenticatedFinanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,15 +126,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/_authenticated/cachets': typeof AuthenticatedCachetsRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
-  '/_authenticated/factures': typeof AuthenticatedFacturesRoute
-  '/_authenticated/fees': typeof AuthenticatedFeesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/subventions': typeof AuthenticatedSubventionsRoute
   '/_authenticated/taches': typeof AuthenticatedTachesRoute
   '/_authenticated/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/_authenticated/finance/cachets': typeof AuthenticatedFinanceCachetsRoute
+  '/_authenticated/finance/fees': typeof AuthenticatedFinanceFeesRoute
+  '/_authenticated/finance/': typeof AuthenticatedFinanceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,44 +142,44 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/unsubscribe'
-    | '/cachets'
     | '/calendrier'
-    | '/factures'
-    | '/fees'
     | '/onboarding'
     | '/subventions'
     | '/taches'
     | '/tracks'
     | '/email/unsubscribe'
+    | '/finance/cachets'
+    | '/finance/fees'
+    | '/finance/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/unsubscribe'
-    | '/cachets'
     | '/calendrier'
-    | '/factures'
-    | '/fees'
     | '/onboarding'
     | '/subventions'
     | '/taches'
     | '/tracks'
     | '/email/unsubscribe'
+    | '/finance/cachets'
+    | '/finance/fees'
+    | '/finance'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/unsubscribe'
-    | '/_authenticated/cachets'
     | '/_authenticated/calendrier'
-    | '/_authenticated/factures'
-    | '/_authenticated/fees'
     | '/_authenticated/onboarding'
     | '/_authenticated/subventions'
     | '/_authenticated/taches'
     | '/_authenticated/tracks'
     | '/email/unsubscribe'
+    | '/_authenticated/finance/cachets'
+    | '/_authenticated/finance/fees'
+    | '/_authenticated/finance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -252,20 +255,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/fees': {
-      id: '/_authenticated/fees'
-      path: '/fees'
-      fullPath: '/fees'
-      preLoaderRoute: typeof AuthenticatedFeesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/factures': {
-      id: '/_authenticated/factures'
-      path: '/factures'
-      fullPath: '/factures'
-      preLoaderRoute: typeof AuthenticatedFacturesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/calendrier': {
       id: '/_authenticated/calendrier'
       path: '/calendrier'
@@ -273,36 +262,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendrierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/cachets': {
-      id: '/_authenticated/cachets'
-      path: '/cachets'
-      fullPath: '/cachets'
-      preLoaderRoute: typeof AuthenticatedCachetsRouteImport
+    '/_authenticated/finance/': {
+      id: '/_authenticated/finance/'
+      path: '/finance'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof AuthenticatedFinanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/finance/fees': {
+      id: '/_authenticated/finance/fees'
+      path: '/finance/fees'
+      fullPath: '/finance/fees'
+      preLoaderRoute: typeof AuthenticatedFinanceFeesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/finance/cachets': {
+      id: '/_authenticated/finance/cachets'
+      path: '/finance/cachets'
+      fullPath: '/finance/cachets'
+      preLoaderRoute: typeof AuthenticatedFinanceCachetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedCachetsRoute: typeof AuthenticatedCachetsRoute
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
-  AuthenticatedFacturesRoute: typeof AuthenticatedFacturesRoute
-  AuthenticatedFeesRoute: typeof AuthenticatedFeesRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSubventionsRoute: typeof AuthenticatedSubventionsRoute
   AuthenticatedTachesRoute: typeof AuthenticatedTachesRoute
   AuthenticatedTracksRoute: typeof AuthenticatedTracksRoute
+  AuthenticatedFinanceCachetsRoute: typeof AuthenticatedFinanceCachetsRoute
+  AuthenticatedFinanceFeesRoute: typeof AuthenticatedFinanceFeesRoute
+  AuthenticatedFinanceIndexRoute: typeof AuthenticatedFinanceIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedCachetsRoute: AuthenticatedCachetsRoute,
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
-  AuthenticatedFacturesRoute: AuthenticatedFacturesRoute,
-  AuthenticatedFeesRoute: AuthenticatedFeesRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSubventionsRoute: AuthenticatedSubventionsRoute,
   AuthenticatedTachesRoute: AuthenticatedTachesRoute,
   AuthenticatedTracksRoute: AuthenticatedTracksRoute,
+  AuthenticatedFinanceCachetsRoute: AuthenticatedFinanceCachetsRoute,
+  AuthenticatedFinanceFeesRoute: AuthenticatedFinanceFeesRoute,
+  AuthenticatedFinanceIndexRoute: AuthenticatedFinanceIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

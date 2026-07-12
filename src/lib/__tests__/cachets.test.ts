@@ -14,6 +14,8 @@ const make = (overrides: Partial<P> = {}): P => ({
   expires_at: future(30),
   payment_date: "2026-01-01",
   amount: 100,
+  hours: 12,
+  batch_id: null,
   batch: null,
   ...overrides,
 });
@@ -41,17 +43,32 @@ describe("countValidCachets", () => {
     expect(countValidCachets([make({ expires_at: null })])).toBe(0);
   });
 
-  it("sums batch_count for batched payments", () => {
-    expect(countValidCachets([make({ batch: { batch_count: 5 } })])).toBe(5);
+  it("counts batch_count once for a batched payment", () => {
+    expect(
+      countValidCachets([make({ batch_id: "b1", batch: { batch_count: 5 } })])
+    ).toBe(5);
+  });
+
+  it("deduplicates multiple payments sharing the same batch_id", () => {
+    // Two rows from the same batch → counts batch_count once
+    expect(
+      countValidCachets([
+        make({ id: "p1", batch_id: "b1", batch: { batch_count: 2 } }),
+        make({ id: "p2", batch_id: "b1", batch: { batch_count: 2 } }),
+      ])
+    ).toBe(2);
   });
 
   it("uses 1 when batch is null", () => {
-    expect(countValidCachets([make({ batch: null })])).toBe(1);
+    expect(countValidCachets([make({ batch_id: null, batch: null })])).toBe(1);
   });
 
-  it("sums across multiple valid payments", () => {
+  it("sums across multiple valid payments with different batches", () => {
     expect(
-      countValidCachets([make(), make({ batch: { batch_count: 3 } })])
+      countValidCachets([
+        make({ id: "p1" }),
+        make({ id: "p2", batch_id: "b1", batch: { batch_count: 3 } }),
+      ])
     ).toBe(4);
   });
 

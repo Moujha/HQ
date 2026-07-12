@@ -19,24 +19,84 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "passé", label: "Passé" },
 ];
 
+interface ConcertPayment {
+  id: string;
+  notes: string | null;
+  source: string;
+  amount: number;
+  payment_date: string | null;
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc";
+  event_id: string | null;
+}
+
+// Adapt a standalone booking/résidence payment to the EventLineData shape
+function paymentToCalendarEntry(p: ConcertPayment): EventLineData {
+  return {
+    id: p.id,
+    title: p.notes ?? p.source,
+    event_date: p.payment_date!,
+    location: null,
+    type: p.source === "résidence" ? "résidence" : "concert",
+    status: p.status === "provisoire" ? "TBC" : "confirmé",
+    payments: [{ id: p.id, status: p.status, amount: p.amount }],
+  };
+}
+
 function CalendrierPage() {
   const { profile } = useAuth();
   const [filter, setFilter] = useState<FilterKey>("à_venir");
   const [addOpen, setAddOpen] = useState(false);
 
-  const { data: events, refresh } = useCollection<EventLineData>("events", {
+  // Events with their linked cachets
+  const { data: events, refresh: refreshEvents } = useCollection<EventLineData>("events", {
+    select: "*, payments(id, status, amount)",
     order: { column: "event_date", ascending: true },
   });
 
+  // All payments — filtered client-side for standalone concerts
+  const { data: allPayments, refresh: refreshPayments } = useCollection<ConcertPayment>(
+    "payments",
+    {
+      select: "id, notes, source, amount, payment_date, status, event_id",
+      order: { column: "payment_date", ascending: true },
+    }
+  );
+
+  const refresh = () => {
+    refreshEvents();
+    refreshPayments();
+  };
+
   const today = new Date().toISOString().split("T")[0];
 
-  const visible = useMemo(() => {
-    if (filter === "à_venir") return events.filter((e) => e.event_date >= today);
-    if (filter === "passé") return events.filter((e) => e.event_date < today);
-    return events;
-  }, [events, filter, today]);
+  // Booking/résidence payments not yet attached to an event row
+  const CALENDAR_SOURCES = ["booking", "résidence", "répétition", "figuration"];
+  const standaloneConcerts = useMemo(
+    () =>
+      allPayments
+        .filter(
+          (p) =>
+            CALENDAR_SOURCES.includes(p.source) &&
+            p.event_id === null &&
+            p.payment_date !== null
+        )
+        .map(paymentToCalendarEntry),
+    [allPayments]
+  );
 
-  const nextEvent = events.find((e) => e.event_date >= today && e.status !== "annulé");
+  // Merge and sort by date
+  const allItems = useMemo(() => {
+    const merged = [...events, ...standaloneConcerts];
+    return merged.sort((a, b) => a.event_date.localeCompare(b.event_date));
+  }, [events, standaloneConcerts]);
+
+  const visible = useMemo(() => {
+    if (filter === "à_venir") return allItems.filter((e) => e.event_date >= today);
+    if (filter === "passé") return allItems.filter((e) => e.event_date < today);
+    return allItems;
+  }, [allItems, filter, today]);
+
+  const nextEvent = allItems.find((e) => e.event_date >= today && e.status !== "annulé");
 
   return (
     <>

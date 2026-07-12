@@ -1,8 +1,8 @@
-import { addDays, addYears } from "date-fns";
+import { addDays, addYears, subMonths } from "date-fns";
 
 export interface PaymentForCachets {
   id: string;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé";
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc";
   counts_for_intermittence: boolean;
   expires_at: string | null;
   payment_date: string | null;
@@ -17,24 +17,28 @@ export interface PaymentForCachets {
  * - Unbatched payment = 1 cachet
  * - Batch: count batch_count once per batch_id (deduplicates multi-payment batches)
  */
+function isValidAt(p: PaymentForCachets, date: Date): boolean {
+  if (p.status === "tbc") return false;
+  if (!p.counts_for_intermittence) return false;
+  if (p.expires_at) return new Date(p.expires_at) > date;
+  if (p.payment_date) {
+    const pd = new Date(p.payment_date);
+    return pd >= subMonths(date, 12) && pd <= date;
+  }
+  return false;
+}
+
 export function countValidCachets(payments: PaymentForCachets[]): number {
   const now = new Date();
-  const valid = payments.filter(
-    (p) =>
-      (p.status === "payé" || p.status === "cachet_en_attente") &&
-      p.counts_for_intermittence &&
-      p.expires_at != null &&
-      new Date(p.expires_at) > now,
-  );
-
   const seenBatches = new Set<string>();
   let total = 0;
-  for (const p of valid) {
+  for (const p of payments) {
+    if (!isValidAt(p, now)) continue;
     if (p.batch_id == null) {
-      total += 1;
+      total += cachetCountFor(p);
     } else if (!seenBatches.has(p.batch_id)) {
       seenBatches.add(p.batch_id);
-      total += p.batch?.batch_count ?? 1;
+      total += cachetCountFor(p);
     }
   }
   return total;
@@ -42,6 +46,13 @@ export function countValidCachets(payments: PaymentForCachets[]): number {
 
 export const GOAL_CACHETS = 53;
 export const GOAL_HOURS = 507;
+export const HOURS_PER_CACHET = 12;
+
+/** Derive cachet count from a payment (batch takes precedence over hours). */
+export function cachetCountFor(p: { batch_id: string | null; batch: { batch_count: number } | null; hours: number }): number {
+  if (p.batch_id != null) return p.batch?.batch_count ?? 1;
+  return Math.max(1, Math.round(p.hours / HOURS_PER_CACHET));
+}
 
 /**
  * Sum hours across valid cachets. Each payment carries its own `hours` value.
@@ -51,7 +62,7 @@ export function countValidHours(payments: PaymentForCachets[]): number {
   const now = new Date();
   const valid = payments.filter(
     (p) =>
-      (p.status === "payé" || p.status === "cachet_en_attente") &&
+      p.status !== "tbc" &&
       p.counts_for_intermittence &&
       p.expires_at != null &&
       new Date(p.expires_at) > now,
@@ -195,7 +206,7 @@ export function expiringWithin(
   const limit = addDays(now, days);
   return payments.filter(
     (p) =>
-      (p.status === "payé" || p.status === "cachet_en_attente") &&
+      p.status !== "tbc" &&
       p.expires_at != null &&
       new Date(p.expires_at) > now &&
       new Date(p.expires_at) <= limit

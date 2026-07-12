@@ -7,11 +7,12 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
+  ReferenceDot,
   ResponsiveContainer,
 } from "recharts";
-import { format, subDays, addDays } from "date-fns";
+import { format, subMonths, addDays, addMonths } from "date-fns";
 import { fr } from "date-fns/locale";
-import { GOAL_CACHETS, GOAL_HOURS, countValidHours, type PaymentForCachets } from "@/lib/cachets";
+import { GOAL_CACHETS, GOAL_HOURS, countValidHours, cachetCountFor, type PaymentForCachets } from "@/lib/cachets";
 
 interface TimelinePoint {
   ts: number;
@@ -24,34 +25,47 @@ function countInWindow(
   date: Date,
   statuses: readonly string[]
 ): number {
-  const windowStart = subDays(date, 365);
   const seen = new Set<string>();
   let total = 0;
   for (const p of payments) {
-    if (!p.payment_date || !p.counts_for_intermittence) continue;
+    if (!p.counts_for_intermittence) continue;
     if (!(statuses as string[]).includes(p.status)) continue;
-    const pd = new Date(p.payment_date);
-    if (pd < windowStart || pd > date) continue;
+
+    if (p.expires_at) {
+      // expires_at is set by DB trigger as payment_date + 12 months
+      const expiresAt = new Date(p.expires_at);
+      if (expiresAt <= date) continue; // expired before this sample date
+      // Exclude cachets earned after the sample date
+      if (p.payment_date && new Date(p.payment_date) > date) continue;
+    } else if (p.payment_date) {
+      // Future/pending cachets without expires_at: use 12-month rolling window
+      const pd = new Date(p.payment_date);
+      const windowStart = subMonths(date, 12);
+      if (pd < windowStart || pd > date) continue;
+    } else {
+      continue;
+    }
+
     if (p.batch_id) {
       if (!seen.has(p.batch_id)) {
         seen.add(p.batch_id);
-        total += p.batch?.batch_count ?? 1;
+        total += cachetCountFor(p);
       }
     } else {
-      total += 1;
+      total += cachetCountFor(p);
     }
   }
   return total;
 }
 
-const CONFIRMED_STATUSES = ["payé", "cachet_en_attente"] as const;
-const ALL_STATUSES = ["payé", "cachet_en_attente", "provisoire"] as const;
+const CONFIRMED_STATUSES = ["payé", "cachet_en_attente", "facturé", "provisoire"] as const;
+const ALL_STATUSES = ["payé", "cachet_en_attente", "facturé", "provisoire", "tbc"] as const;
 
 function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
   const now = new Date();
-  const start = subDays(now, 13 * 30); // ~13 months back
-  const end = addDays(now, 6 * 30);    // ~6 months forward
-  const STEP = 7;                       // weekly samples
+  const start = subMonths(now, 13);
+  const end = addMonths(now, 6);
+  const STEP = 7; // weekly samples
 
   const points: TimelinePoint[] = [];
   let cur = start;
@@ -85,6 +99,10 @@ export function IntermittenceGraph({ count, payments }: Props) {
   const hours = countValidHours(payments);
   const data = useMemo(() => buildTimeline(payments), [payments]);
   const todayTs = Date.now();
+
+  const todayPoint = data.reduce((closest, d) =>
+    Math.abs(d.ts - todayTs) < Math.abs(closest.ts - todayTs) ? d : closest
+  );
 
   const maxY = Math.max(
     GOAL_CACHETS + 4,
@@ -185,7 +203,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
               labelFormatter={(ts) => labelFormatter(ts as number)}
               formatter={(value: number, name: string) => [
                 value,
-                name === "confirmed" ? "Confirmés" : "Potentiels",
+                name === "confirmed" ? "Confirmés" : "TBC",
               ]}
             />
 
@@ -211,11 +229,21 @@ export function IntermittenceGraph({ count, payments }: Props) {
               strokeDasharray="2 2"
               strokeWidth={1}
               opacity={0.4}
+            />
+
+            {/* Today dot on confirmed curve */}
+            <ReferenceDot
+              x={todayPoint.ts}
+              y={todayPoint.confirmed}
+              r={5}
+              fill="#4ade80"
+              stroke="hsl(var(--card))"
+              strokeWidth={2}
               label={{
-                value: "Aujourd'hui",
-                position: "insideTopLeft",
+                value: `${todayPoint.confirmed} auj.`,
+                position: "top",
                 fontSize: 9,
-                fill: "hsl(var(--muted-foreground))",
+                fill: "#4ade80",
                 dy: -4,
               }}
             />
@@ -252,7 +280,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
       <div className="flex items-center gap-5 text-[10px] text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <div className="h-0.5 w-5 rounded-full bg-green-400" />
-          <span>Confirmés (payé + en attente)</span>
+          <span>Confirmés (payé, en attente, provisoire)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <svg width="20" height="2" viewBox="0 0 20 2">
@@ -262,7 +290,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
               strokeDasharray="4 2"
             />
           </svg>
-          <span>Potentiels</span>
+          <span>TBC</span>
         </div>
       </div>
     </div>

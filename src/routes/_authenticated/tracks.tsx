@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { AppHeader } from "@/components/app/AppHeader";
 import { TrackLine, type TrackLineData } from "@/components/modules/tracks/TrackLine";
 import { AddTrackDrawer } from "@/components/modules/tracks/AddTrackDrawer";
+import { SacemImportDrawer } from "@/components/modules/tracks/SacemImportDrawer";
 
 export const Route = createFileRoute("/_authenticated/tracks")({
   component: TracksPage,
@@ -17,6 +18,7 @@ function TracksPage() {
   const { profile } = useAuth();
   const [filter, setFilter] = useState<SacemFilter>("tous");
   const [addOpen, setAddOpen] = useState(false);
+  const [sacemOpen, setSacemOpen] = useState(false);
 
   const { data: tracks, refresh } = useCollection<TrackLineData>("tracks", {
     order: { column: "created_at", ascending: false },
@@ -73,16 +75,26 @@ function TracksPage() {
       </div>
 
       {profile?.role === "manager" && (
-        <button
-          onClick={() => setAddOpen(true)}
-          className="fixed bottom-[max(env(safe-area-inset-bottom),1rem)] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
-          aria-label="Nouveau track"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+        <div className="fixed bottom-[max(env(safe-area-inset-bottom),1rem)] right-4 z-40 flex flex-col items-end gap-3">
+          <button
+            onClick={() => setSacemOpen(true)}
+            className="grid h-12 w-12 place-items-center rounded-full bg-card border border-border text-foreground shadow-md transition active:scale-95"
+            aria-label="Importer SACEM"
+          >
+            <FileDown className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setAddOpen(true)}
+            className="grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
+            aria-label="Nouveau track"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </div>
       )}
 
       <AddTrackDrawer open={addOpen} onOpenChange={setAddOpen} onSuccess={refresh} />
+      <SacemImportDrawer open={sacemOpen} onOpenChange={setSacemOpen} onSuccess={refresh} />
     </>
   );
 }
