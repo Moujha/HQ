@@ -1,4 +1,4 @@
-import { addDays, addYears, subMonths } from "date-fns";
+import { addDays, addYears } from "date-fns";
 
 export interface PaymentForCachets {
   id: string;
@@ -18,14 +18,10 @@ export interface PaymentForCachets {
  * - Batch: count batch_count once per batch_id (deduplicates multi-payment batches)
  */
 function isValidAt(p: PaymentForCachets, date: Date): boolean {
-  if (p.status === "tbc" || p.status === "annulé") return false;
+  if (p.status !== "payé") return false;
   if (!p.counts_for_intermittence) return false;
-  if (p.expires_at) return new Date(p.expires_at) > date;
-  if (p.payment_date) {
-    const pd = new Date(p.payment_date);
-    return pd >= subMonths(date, 12) && pd <= date;
-  }
-  return false;
+  if (!p.expires_at) return false;
+  return new Date(p.expires_at) > date;
 }
 
 export function countValidCachets(payments: PaymentForCachets[]): number {
@@ -62,8 +58,7 @@ export function countValidHours(payments: PaymentForCachets[]): number {
   const now = new Date();
   const valid = payments.filter(
     (p) =>
-      p.status !== "tbc" &&
-      p.status !== "annulé" &&
+      p.status === "payé" &&
       p.counts_for_intermittence &&
       p.expires_at != null &&
       new Date(p.expires_at) > now,
@@ -207,8 +202,7 @@ export function expiringWithin(
   const limit = addDays(now, days);
   return payments.filter(
     (p) =>
-      p.status !== "tbc" &&
-      p.status !== "annulé" &&
+      p.status === "payé" &&
       p.expires_at != null &&
       new Date(p.expires_at) > now &&
       new Date(p.expires_at) <= limit
