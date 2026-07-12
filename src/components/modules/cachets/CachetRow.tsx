@@ -58,8 +58,8 @@ export function previousStatus(status: PaymentRow["status"]): PaymentRow["status
   return STATUS_ORDER[i - 1];
 }
 
-const COMMIT_DISTANCE = 96;
-const COMMIT_VELOCITY = 500;
+const COMMIT_DISTANCE = 160;
+const COMMIT_VELOCITY = 900;
 
 export function CachetRow({
   payment,
