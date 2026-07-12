@@ -7,7 +7,7 @@ export interface RevenueLineData {
   source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem";
   amount: number;
   payment_date: string | null;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé";
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "annulé";
 }
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -25,13 +25,15 @@ const STATUS_CLASS: Record<string, string> = {
   facturé: "text-blue-400 bg-blue-400/10",
   cachet_en_attente: "text-amber-400 bg-amber-400/10",
   payé: "text-green-400 bg-green-400/10",
+  annulé: "text-red-400 bg-red-400/10",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   provisoire: "Provisoire",
   facturé: "Facturé",
-  cachet_en_attente: "En attente",
+  cachet_en_attente: "Confirmé",
   payé: "Payé",
+  annulé: "Annulé",
 };
 
 export function RevenueLine({
