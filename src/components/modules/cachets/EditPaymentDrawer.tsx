@@ -17,7 +17,7 @@ const schema = z.object({
   payment_date: z.string().optional(),
   source: z.enum(["label", "booking", "clip", "track", "résidence", "figuration", "répétition", "formation", "accompagnement"]),
   territory: z.enum(["france", "étranger"]),
-  status: z.enum(["provisoire", "facturé", "cachet_en_attente", "payé", "tbc"]),
+  status: z.enum(["provisoire", "facturé", "cachet_en_attente", "payé", "tbc", "annulé"]),
   counts_for_intermittence: z.boolean(),
   deductible_expenses: z.coerce.number().min(0),
   hours: z.coerce.number().min(1),
@@ -41,9 +41,10 @@ const SOURCE_OPTIONS = [
 
 const STATUS_OPTIONS = [
   { value: "provisoire", label: "TBC" },
-  { value: "cachet_en_attente", label: "En attente" },
+  { value: "cachet_en_attente", label: "Confirmé" },
   { value: "facturé", label: "Facturé" },
   { value: "payé", label: "Payé" },
+  { value: "annulé", label: "Annulé" },
 ] as const;
 
 const HOURS_PER_CACHET = 12;
