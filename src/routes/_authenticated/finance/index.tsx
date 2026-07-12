@@ -32,7 +32,7 @@ const INTERMITTENCE_SOURCES = [
 type FullPayment = RevenueLineData & PaymentForCachets;
 
 interface FeeWithPayment extends ManagementFeeForCalc {
-  payment: { payment_date: string | null } | null;
+  payment: { payment_date: string | null; status: string } | null;
 }
 
 function FinancePage() {
@@ -51,7 +51,7 @@ function FinancePage() {
   );
 
   const { data: fees } = useCollection<FeeWithPayment>("management_fees", {
-    select: "id, commission_due, status, already_paid_to_manager, is_commissionable, payment:payments(payment_date)",
+    select: "id, commission_due, status, already_paid_to_manager, is_commissionable, payment:payments(payment_date, status)",
   });
 
   const { data: expenses } = useCollection<ExpenseForCalc>("expenses", {});
@@ -61,6 +61,7 @@ function FinancePage() {
   const filteredFees = useMemo(
     () =>
       fees.filter((f) => {
+        if (f.payment?.status === "annulé") return false;
         const payDate = f.payment?.payment_date;
         return !payDate || payDate >= commissionStart;
       }),
