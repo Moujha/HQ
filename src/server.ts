@@ -66,10 +66,20 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
+      // DEBUG: expose raw 500 body so we can see the actual error
+      if (response.status >= 500) {
+        const body = await response.clone().text();
+        console.error("SSR 500 body:", body);
+        return new Response(`<pre>SSR ERROR\n${body}</pre>`, {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        });
+      }
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
-      console.error(error);
-      return new Response(renderErrorPage(), {
+      console.error("WORKER CATCH:", error);
+      const msg = error instanceof Error ? `${error.message}\n${error.stack}` : String(error);
+      return new Response(`<pre>WORKER ERROR\n${msg}</pre>`, {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
       });
