@@ -142,7 +142,7 @@ export type Database = {
           amount: number
           payment_date: string | null
           expires_at: string | null
-          status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé"
           source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory: "france" | "étranger"
           counts_for_intermittence: boolean
@@ -162,7 +162,7 @@ export type Database = {
           amount: number
           payment_date?: string | null
           expires_at?: string | null
-          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé"
           source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory?: "france" | "étranger"
           counts_for_intermittence?: boolean
@@ -182,7 +182,7 @@ export type Database = {
           amount?: number
           payment_date?: string | null
           expires_at?: string | null
-          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc"
+          status?: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé"
           source?: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem" | "répétition" | "formation" | "accompagnement"
           territory?: "france" | "étranger"
           counts_for_intermittence?: boolean
