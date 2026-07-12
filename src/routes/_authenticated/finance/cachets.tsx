@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { AlertTriangle, Plus } from "lucide-react";
+import { AlertTriangle, Plus, Search, SlidersHorizontal, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
+import { supabase } from "@/integrations/supabase/client";
 import { countValidCachets, expiringWithin } from "@/lib/cachets";
+import { applyCachetFilters, sortCachetsByDate, countActiveFilters, EMPTY_FILTERS, type CachetFilters } from "@/lib/cachetFilters";
 import { AppHeader } from "@/components/app/AppHeader";
-import { CachetRow, type PaymentRow } from "@/components/modules/cachets/CachetRow";
+import { CachetRow, STATUS_LABEL, type PaymentRow } from "@/components/modules/cachets/CachetRow";
+import { CachetFilterSheet } from "@/components/modules/cachets/CachetFilterSheet";
 import { EditPaymentDrawer } from "@/components/modules/cachets/EditPaymentDrawer";
 import { IntermittenceGraph } from "@/components/modules/cachets/IntermittenceGraph";
 import { AddRevenueSheet } from "@/components/modules/finance/AddRevenueSheet";
@@ -14,24 +18,26 @@ export const Route = createFileRoute("/_authenticated/finance/cachets")({
   component: CachetsPage,
 });
 
-type Filter = "tous" | "actifs" | "provisoires" | "expirés";
-
-const FILTER_LABELS: Record<Filter, string> = {
-  tous: "Tous",
-  actifs: "Actifs",
-  provisoires: "Provisoires",
-  expirés: "Expirés",
-};
-
 type FullPaymentRow = PaymentRow & {
   batch_id: string | null;
   batch: { batch_count: number } | null;
 };
 
+async function writeStatus(id: string, status: PaymentRow["status"]) {
+  const { error } = await supabase.from("payments").update({ status }).eq("id", id);
+  if (error) {
+    toast.error(error.message || "Erreur lors du changement de statut");
+    return;
+  }
+  window.dispatchEvent(new Event("mc-refresh"));
+}
+
 function CachetsPage() {
   const { profile } = useAuth();
   const isManager = profile?.role === "manager";
-  const [filter, setFilter] = useState<Filter>("tous");
+  const [filters, setFilters] = useState<CachetFilters>(EMPTY_FILTERS);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [sortAsc, setSortAsc] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [editPayment, setEditPayment] = useState<FullPaymentRow | null>(null);
 
@@ -40,35 +46,28 @@ function CachetsPage() {
     order: { column: "payment_date", ascending: false },
   });
 
-  const now = new Date();
   const cachets = useMemo(
     () => allPayments.filter((p) => p.source !== "sacem"),
     [allPayments]
   );
 
-  const filtered = useMemo(() => {
-    switch (filter) {
-      case "actifs":
-        return cachets.filter(
-          (p) =>
-            p.status === "payé" && p.expires_at && new Date(p.expires_at) > now
-        );
-      case "provisoires":
-        return cachets.filter(
-          (p) => p.status === "provisoire" || p.status === "cachet_en_attente"
-        );
-      case "expirés":
-        return cachets.filter(
-          (p) =>
-            p.status === "payé" && p.expires_at && new Date(p.expires_at) <= now
-        );
-      default:
-        return cachets;
-    }
-  }, [cachets, filter, now]);
+  const searched = useMemo(() => applyCachetFilters(cachets, filters), [cachets, filters]);
+  const filtered = useMemo(() => sortCachetsByDate(searched, sortAsc), [searched, sortAsc]);
 
   const validCount = countValidCachets(cachets);
   const expiringSoon = expiringWithin(cachets, 60);
+  const activeFilterCount = countActiveFilters(filters);
+
+  const handleSwipeStatusChange = (payment: FullPaymentRow, next: PaymentRow["status"]) => {
+    const previous = payment.status;
+    writeStatus(payment.id, next);
+    toast.success(`Statut → ${STATUS_LABEL[next] ?? next}`, {
+      action: {
+        label: "Annuler",
+        onClick: () => writeStatus(payment.id, previous),
+      },
+    });
+  };
 
   return (
     <>
@@ -91,30 +90,63 @@ function CachetsPage() {
           </div>
         )}
 
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
-          {(Object.keys(FILTER_LABELS) as Filter[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
-                filter === f
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              {FILTER_LABELS[f]}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+              placeholder="Rechercher un intitulé…"
+              className="w-full rounded-full border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setFilterSheetOpen(true)}
+            className="relative shrink-0 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground"
+          >
+            <span className="flex items-center gap-1.5">
+              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+              Filtres
+            </span>
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[0.6rem] font-semibold text-background">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSortAsc((v) => !v)}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground"
+          >
+            {sortAsc ? (
+              <ArrowUpNarrowWide className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <ArrowDownWideNarrow className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            Date
+          </button>
         </div>
 
         <div className="space-y-2">
           {filtered.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Aucun cachet{filter !== "tous" ? " dans cette catégorie" : ""}.
+              Aucun cachet{activeFilterCount > 0 || filters.search ? " pour ces filtres" : ""}.
             </p>
           )}
           {filtered.map((p) => (
-            <CachetRow key={p.id} payment={p} onClick={() => setEditPayment(p)} />
+            <CachetRow
+              key={p.id}
+              payment={p}
+              onClick={() => setEditPayment(p)}
+              swipeEnabled={isManager}
+              onSwipeStatusChange={(next) => handleSwipeStatusChange(p, next)}
+            />
           ))}
         </div>
       </div>
@@ -142,6 +174,13 @@ function CachetsPage() {
         }}
         payment={editPayment}
         onSuccess={refresh}
+      />
+
+      <CachetFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        filters={filters}
+        onChange={setFilters}
       />
     </>
   );
