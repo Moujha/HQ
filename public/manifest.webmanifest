@@ -1,7 +1,7 @@
 {
-  "name": "Maison Caviar — Cockpit",
-  "short_name": "Maison Caviar",
-  "description": "Le cockpit opérationnel et décisionnel du label Maison Caviar.",
+  "name": "BLOU FEET — Cockpit",
+  "short_name": "BLOU FEET",
+  "description": "Le cockpit opérationnel et décisionnel de BLOU FEET.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

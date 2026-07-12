@@ -1,15 +1,15 @@
-// Domain constants, labels and visual mappings for Maison Caviar.
+// Domain constants, labels and visual mappings for BLOU FEET.
 
 export type Role = "manager" | "artist";
 
 export const ROLE_LABEL: Record<string, string> = {
-  manager: "Adrien · Manager",
-  artist: "Meryl · Artiste",
+  manager: "Paul · Manager",
+  artist: "BLOU FEET · Artiste",
 };
 
 export const ROLE_SHORT: Record<string, string> = {
-  manager: "Adrien",
-  artist: "Meryl",
+  manager: "Paul",
+  artist: "BLOU FEET",
 };
 
 export const DECISION_CATEGORIES = [

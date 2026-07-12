@@ -140,7 +140,7 @@ export function NotificationsToggle() {
           ) : status === "denied" ? (
             <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
               Les notifications sont bloquées. Autorisez-les dans les réglages de
-              votre iPhone (Réglages → Maison Caviar → Notifications).
+              votre iPhone (Réglages → BLOU FEET → Notifications).
             </p>
           ) : enabled ? (
             <button

@@ -57,7 +57,7 @@ function UnsubscribePage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-          Maison Caviar
+          BLOU FEET
         </p>
         <h1 className="mt-3 font-display text-2xl font-bold text-foreground">
           Se désabonner
