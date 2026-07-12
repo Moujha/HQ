@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 
 export interface EventPayment {
   id: string;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc";
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé";
   amount: number;
 }
 
@@ -32,10 +32,11 @@ function deriveDisplayStatus(
   payments: EventPayment[] | null,
 ): string {
   if (eventStatus === "annulé") return "annulé";
-  if (!payments || payments.length === 0) return eventStatus;
-  return payments.reduce((acc, p) => {
+  const active = (payments ?? []).filter((p) => p.status !== "annulé");
+  if (active.length === 0) return eventStatus;
+  return active.reduce((acc, p) => {
     return (PAYMENT_RANK[p.status] ?? 0) < (PAYMENT_RANK[acc] ?? 0) ? p.status : acc;
-  }, payments[0].status);
+  }, active[0].status);
 }
 
 const STATUS_CLASS: Record<string, string> = {
@@ -55,7 +56,7 @@ const STATUS_LABEL: Record<string, string> = {
   annulé: "Annulé",
   tbc: "TBC",
   provisoire: "TBC",
-  cachet_en_attente: "En attente",
+  cachet_en_attente: "Confirmé",
   facturé: "Facturé",
   payé: "Payé",
 };
