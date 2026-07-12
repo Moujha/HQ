@@ -37,15 +37,32 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+type CloudflareEnv = {
+  ASSETS?: { fetch: (req: Request) => Promise<Response> };
+  [key: string]: unknown;
+};
+
 export default {
-  async fetch(request: Request, env: Record<string, string>, ctx: unknown) {
+  async fetch(request: Request, env: CloudflareEnv, ctx: unknown) {
     // Cloudflare Workers don't populate process.env from the Pages dashboard.
-    // Copy bindings into process.env so existing code using process.env works.
+    // Copy string bindings into process.env so existing code using process.env works.
     if (env && typeof env === "object") {
       for (const [key, value] of Object.entries(env)) {
         if (typeof value === "string") process.env[key] = value;
       }
     }
+
+    // In Cloudflare Pages Advanced Mode, static assets are NOT served automatically.
+    // Try the ASSETS binding first; fall through to SSR only on 404.
+    if (env.ASSETS) {
+      try {
+        const assetResponse = await env.ASSETS.fetch(request.clone());
+        if (assetResponse.status !== 404) return assetResponse;
+      } catch {
+        // not a static asset — continue to SSR
+      }
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
