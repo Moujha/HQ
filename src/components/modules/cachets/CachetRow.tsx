@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -72,6 +73,7 @@ export function CachetRow({
   swipeEnabled?: boolean;
   onSwipeStatusChange?: (next: PaymentRow["status"]) => void;
 }) {
+  const hasDraggedRef = useRef(false);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-8, 8]);
   const rightLabelOpacity = useTransform(x, [0, COMMIT_DISTANCE], [0, 1]);
@@ -204,8 +206,17 @@ export function CachetRow({
         drag="x"
         dragSnapToOrigin
         style={{ x, rotate }}
+        onDragStart={() => {
+          hasDraggedRef.current = true;
+        }}
         onDragEnd={handleDragEnd}
-        onTap={onClick}
+        onTap={() => {
+          if (hasDraggedRef.current) {
+            hasDraggedRef.current = false;
+            return;
+          }
+          onClick?.();
+        }}
         className="relative flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left"
       >
         {content}

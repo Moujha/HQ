@@ -168,7 +168,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
 
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="hsl(var(--border))"
+              stroke="var(--border)"
               opacity={0.5}
               vertical={false}
             />
@@ -179,14 +179,14 @@ export function IntermittenceGraph({ count, payments }: Props) {
               domain={["dataMin", "dataMax"]}
               scale="time"
               tickFormatter={tickFormatter}
-              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 9, fill: "var(--muted-foreground)" }}
               tickLine={false}
               axisLine={false}
               tickCount={7}
             />
             <YAxis
               domain={[0, maxY]}
-              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 9, fill: "var(--muted-foreground)" }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -195,8 +195,8 @@ export function IntermittenceGraph({ count, payments }: Props) {
 
             <Tooltip
               contentStyle={{
-                background: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
+                background: "var(--card)",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 fontSize: 11,
               }}
@@ -225,7 +225,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
             {/* Today line */}
             <ReferenceLine
               x={todayTs}
-              stroke="hsl(var(--foreground))"
+              stroke="var(--foreground)"
               strokeDasharray="2 2"
               strokeWidth={1}
               opacity={0.4}
@@ -237,7 +237,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
               y={todayPoint.confirmed}
               r={5}
               fill="#4ade80"
-              stroke="hsl(var(--card))"
+              stroke="var(--card)"
               strokeWidth={2}
               label={{
                 value: `${todayPoint.confirmed} auj.`,
