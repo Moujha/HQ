@@ -60,7 +60,7 @@ export function EditPaymentDrawer({ open, onOpenChange, payment, onSuccess }: Pr
   const [busy, setBusy] = useState(false);
   const [hoursMode, setHoursMode] = useState<HoursMode>("cachets");
 
-  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } =
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors, isDirty } } =
     useForm<FormValues>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
@@ -136,14 +136,24 @@ export function EditPaymentDrawer({ open, onOpenChange, payment, onSuccess }: Pr
     }
   };
 
+  // Swiping the sheet away or tapping the backdrop should save (like closing a note),
+  // not silently discard edits. Only auto-saves if something actually changed.
+  const handleOpenChange = (v: boolean) => {
+    if (!v && isDirty) {
+      void handleSubmit(submit)();
+      return;
+    }
+    onOpenChange(v);
+  };
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[92dvh]">
+    <Drawer open={open} onOpenChange={handleOpenChange}>
+      <DrawerContent className="max-h-[92dvh] overflow-x-hidden">
         <DrawerHeader>
           <DrawerTitle className="font-display text-xl">Modifier le cachet</DrawerTitle>
         </DrawerHeader>
 
-        <form onSubmit={handleSubmit(submit)} className="overflow-y-auto px-4 pb-8 space-y-5 no-scrollbar">
+        <form onSubmit={handleSubmit(submit)} className="overflow-y-auto overflow-x-hidden px-4 pb-8 space-y-5 no-scrollbar">
           {/* Intitulé */}
           <div className="space-y-1.5">
             <Label htmlFor="edit-notes">Intitulé</Label>
