@@ -14,7 +14,7 @@ const TERRITORY_OPTIONS = [
   { value: "étranger", label: "Étranger" },
 ] as const;
 
-const SOURCE_OPTIONS = [
+const DEFAULT_SOURCE_OPTIONS = [
   { value: "booking", label: "Concert" },
   { value: "répétition", label: "Répétition" },
   { value: "formation", label: "Formation" },
@@ -31,6 +31,7 @@ interface Props {
   onOpenChange: (v: boolean) => void;
   filters: CachetFilters;
   onChange: (filters: CachetFilters) => void;
+  sourceOptions?: readonly { value: string; label: string }[];
 }
 
 function toggle(list: string[], value: string): string[] {
@@ -71,8 +72,9 @@ function FilterGroup({
   );
 }
 
-export function CachetFilterSheet({ open, onOpenChange, filters, onChange }: Props) {
+export function CachetFilterSheet({ open, onOpenChange, filters, onChange, sourceOptions }: Props) {
   const reset = () => onChange({ ...filters, statuses: [], territories: [], sources: [] });
+  const typeOptions = sourceOptions ?? DEFAULT_SOURCE_OPTIONS;
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -103,7 +105,7 @@ export function CachetFilterSheet({ open, onOpenChange, filters, onChange }: Pro
           />
           <FilterGroup
             label="Type"
-            options={SOURCE_OPTIONS}
+            options={typeOptions}
             selected={filters.sources}
             onToggle={(v) => onChange({ ...filters, sources: toggle(filters.sources, v) })}
           />
