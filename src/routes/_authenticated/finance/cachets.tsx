@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { AlertTriangle, Plus, Search, SlidersHorizontal, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
+import { AlertTriangle, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { countValidCachets, expiringWithin, STATUS_LABEL, writePaymentStatus } from "@/lib/cachets";
 import { applyCachetFilters, sortCachetsByDate, countActiveFilters, EMPTY_FILTERS, type CachetFilters } from "@/lib/cachetFilters";
 import { AppHeader } from "@/components/app/AppHeader";
+import { SearchFilterSortBar } from "@/components/app/SearchFilterSortBar";
 import { CachetRow, type PaymentRow } from "@/components/modules/cachets/CachetRow";
 import { CachetFilterSheet } from "@/components/modules/cachets/CachetFilterSheet";
 import { EditPaymentDrawer } from "@/components/modules/cachets/EditPaymentDrawer";
@@ -80,48 +81,14 @@ function CachetsPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <input
-              type="text"
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-              placeholder="Rechercher un intitulé…"
-              className="w-full rounded-full border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => setFilterSheetOpen(true)}
-            className="relative shrink-0 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground"
-          >
-            <span className="flex items-center gap-1.5">
-              <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
-              Filtres
-            </span>
-            {activeFilterCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[0.6rem] font-semibold text-background">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSortAsc((v) => !v)}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground"
-          >
-            {sortAsc ? (
-              <ArrowUpNarrowWide className="h-3.5 w-3.5" aria-hidden="true" />
-            ) : (
-              <ArrowDownWideNarrow className="h-3.5 w-3.5" aria-hidden="true" />
-            )}
-            Date
-          </button>
-        </div>
+        <SearchFilterSortBar
+          search={filters.search}
+          onSearchChange={(value) => setFilters((f) => ({ ...f, search: value }))}
+          activeFilterCount={activeFilterCount}
+          onFilterClick={() => setFilterSheetOpen(true)}
+          sortAsc={sortAsc}
+          onSortToggle={() => setSortAsc((v) => !v)}
+        />
 
         <div className="space-y-2">
           {filtered.length === 0 && (
