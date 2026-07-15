@@ -4,11 +4,10 @@ import { AlertTriangle, Plus, Search, SlidersHorizontal, ArrowDownWideNarrow, Ar
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
-import { supabase } from "@/integrations/supabase/client";
-import { countValidCachets, expiringWithin } from "@/lib/cachets";
+import { countValidCachets, expiringWithin, STATUS_LABEL, writePaymentStatus } from "@/lib/cachets";
 import { applyCachetFilters, sortCachetsByDate, countActiveFilters, EMPTY_FILTERS, type CachetFilters } from "@/lib/cachetFilters";
 import { AppHeader } from "@/components/app/AppHeader";
-import { CachetRow, STATUS_LABEL, type PaymentRow } from "@/components/modules/cachets/CachetRow";
+import { CachetRow, type PaymentRow } from "@/components/modules/cachets/CachetRow";
 import { CachetFilterSheet } from "@/components/modules/cachets/CachetFilterSheet";
 import { EditPaymentDrawer } from "@/components/modules/cachets/EditPaymentDrawer";
 import { IntermittenceGraph } from "@/components/modules/cachets/IntermittenceGraph";
@@ -22,15 +21,6 @@ type FullPaymentRow = PaymentRow & {
   batch_id: string | null;
   batch: { batch_count: number } | null;
 };
-
-async function writeStatus(id: string, status: PaymentRow["status"]) {
-  const { error } = await supabase.from("payments").update({ status }).eq("id", id);
-  if (error) {
-    toast.error(error.message || "Erreur lors du changement de statut");
-    return;
-  }
-  window.dispatchEvent(new Event("mc-refresh"));
-}
 
 function CachetsPage() {
   const { profile } = useAuth();
@@ -60,11 +50,11 @@ function CachetsPage() {
 
   const handleSwipeStatusChange = (payment: FullPaymentRow, next: PaymentRow["status"]) => {
     const previous = payment.status;
-    writeStatus(payment.id, next);
+    writePaymentStatus(payment.id, next);
     toast.success(`Statut → ${STATUS_LABEL[next] ?? next}`, {
       action: {
         label: "Annuler",
-        onClick: () => writeStatus(payment.id, previous),
+        onClick: () => writePaymentStatus(payment.id, previous),
       },
     });
   };
