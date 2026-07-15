@@ -1,4 +1,6 @@
 import { addDays, addYears } from "date-fns";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PaymentForCachets {
   id: string;
@@ -48,6 +50,45 @@ export const HOURS_PER_CACHET = 12;
 export function cachetCountFor(p: { batch_id: string | null; batch: { batch_count: number } | null; hours: number }): number {
   if (p.batch_id != null) return p.batch?.batch_count ?? 1;
   return Math.max(1, Math.round(p.hours / HOURS_PER_CACHET));
+}
+
+// ── Status ────────────────────────────────────────────────────
+
+export const STATUS_LABEL: Record<string, string> = {
+  provisoire: "TBC",
+  facturé: "Facturé",
+  cachet_en_attente: "Confirmé",
+  payé: "Payé",
+  tbc: "TBC",
+  annulé: "Annulé",
+};
+
+const STATUS_ORDER = ["annulé", "provisoire", "cachet_en_attente", "facturé", "payé"] as const;
+
+function orderIndex(status: PaymentForCachets["status"]): number {
+  const normalized = status === "tbc" ? "provisoire" : status;
+  return STATUS_ORDER.indexOf(normalized as (typeof STATUS_ORDER)[number]);
+}
+
+export function nextStatus(status: PaymentForCachets["status"]): PaymentForCachets["status"] | null {
+  const i = orderIndex(status);
+  if (i === -1 || i >= STATUS_ORDER.length - 1) return null;
+  return STATUS_ORDER[i + 1];
+}
+
+export function previousStatus(status: PaymentForCachets["status"]): PaymentForCachets["status"] | null {
+  const i = orderIndex(status);
+  if (i <= 0) return null;
+  return STATUS_ORDER[i - 1];
+}
+
+export async function writePaymentStatus(id: string, status: PaymentForCachets["status"]) {
+  const { error } = await supabase.from("payments").update({ status }).eq("id", id);
+  if (error) {
+    toast.error(error.message || "Erreur lors du changement de statut");
+    return;
+  }
+  window.dispatchEvent(new Event("mc-refresh"));
 }
 
 /**

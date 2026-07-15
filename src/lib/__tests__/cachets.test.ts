@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { addDays, subDays } from "date-fns";
-import { countValidCachets, expiringWithin } from "../cachets";
+import { countValidCachets, expiringWithin, nextStatus, previousStatus } from "../cachets";
 
 const future = (days: number) => addDays(new Date(), days).toISOString().split("T")[0];
 const past = (days: number) => subDays(new Date(), days).toISOString().split("T")[0];
@@ -107,5 +107,32 @@ describe("expiringWithin", () => {
 
   it("returns empty array when no matches", () => {
     expect(expiringWithin([], 60)).toHaveLength(0);
+  });
+});
+
+describe("nextStatus / previousStatus", () => {
+  it("orders annulé < provisoire < cachet_en_attente < facturé < payé", () => {
+    expect(nextStatus("annulé")).toBe("provisoire");
+    expect(nextStatus("provisoire")).toBe("cachet_en_attente");
+    expect(nextStatus("cachet_en_attente")).toBe("facturé");
+    expect(nextStatus("facturé")).toBe("payé");
+    expect(nextStatus("payé")).toBe(null);
+  });
+
+  it("treats tbc as an alias for provisoire", () => {
+    expect(nextStatus("tbc")).toBe("cachet_en_attente");
+    expect(previousStatus("tbc")).toBe("annulé");
+  });
+
+  it("clamps at both ends", () => {
+    expect(nextStatus("payé")).toBe(null);
+    expect(previousStatus("annulé")).toBe(null);
+  });
+
+  it("previousStatus mirrors nextStatus", () => {
+    expect(previousStatus("payé")).toBe("facturé");
+    expect(previousStatus("facturé")).toBe("cachet_en_attente");
+    expect(previousStatus("cachet_en_attente")).toBe("provisoire");
+    expect(previousStatus("provisoire")).toBe("annulé");
   });
 });
