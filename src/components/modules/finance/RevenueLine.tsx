@@ -1,5 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { SwipeableRow } from "@/components/app/SwipeableRow";
+import { STATUS_LABEL, nextStatus, previousStatus } from "@/lib/cachets";
 
 export interface RevenueLineData {
   id: string;
@@ -7,7 +9,7 @@ export interface RevenueLineData {
   source: "label" | "booking" | "clip" | "track" | "résidence" | "figuration" | "sacem";
   amount: number;
   payment_date: string | null;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "annulé";
+  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc" | "annulé";
 }
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -25,29 +27,25 @@ const STATUS_CLASS: Record<string, string> = {
   facturé: "text-blue-400 bg-blue-400/10",
   cachet_en_attente: "text-amber-400 bg-amber-400/10",
   payé: "text-green-400 bg-green-400/10",
+  tbc: "text-amber-400 bg-amber-400/10",
   annulé: "text-red-400 bg-red-400/10",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  provisoire: "Provisoire",
-  facturé: "Facturé",
-  cachet_en_attente: "Confirmé",
-  payé: "Payé",
-  annulé: "Annulé",
 };
 
 export function RevenueLine({
   revenue,
   onClick,
+  interactive = true,
+  swipeEnabled = false,
+  onSwipeStatusChange,
 }: {
   revenue: RevenueLineData;
   onClick?: () => void;
+  interactive?: boolean;
+  swipeEnabled?: boolean;
+  onSwipeStatusChange?: (next: RevenueLineData["status"]) => void;
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition active:scale-[0.98]"
-    >
+  const content = (
+    <>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">
           {revenue.notes ?? SOURCE_LABEL[revenue.source] ?? revenue.source}
@@ -75,6 +73,30 @@ export function RevenueLine({
           {STATUS_LABEL[revenue.status] ?? revenue.status}
         </span>
       </div>
-    </button>
+    </>
+  );
+
+  if (!interactive) {
+    return (
+      <div className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left">
+        {content}
+      </div>
+    );
+  }
+
+  const next = nextStatus(revenue.status);
+  const prev = previousStatus(revenue.status);
+
+  return (
+    <SwipeableRow
+      swipeEnabled={swipeEnabled}
+      onClick={onClick}
+      nextLabel={next ? STATUS_LABEL[next] : null}
+      prevLabel={prev ? STATUS_LABEL[prev] : null}
+      onCommitRight={() => next && onSwipeStatusChange?.(next)}
+      onCommitLeft={() => prev && onSwipeStatusChange?.(prev)}
+    >
+      {content}
+    </SwipeableRow>
   );
 }
