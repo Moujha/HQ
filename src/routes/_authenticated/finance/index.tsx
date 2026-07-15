@@ -1,35 +1,53 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { AppHeader } from "@/components/app/AppHeader";
+import { SearchFilterSortBar } from "@/components/app/SearchFilterSortBar";
 import { RevenueLine, type RevenueLineData } from "@/components/modules/finance/RevenueLine";
 import { AddRevenueSheet } from "@/components/modules/finance/AddRevenueSheet";
 import { SacemImportDrawer } from "@/components/modules/tracks/SacemImportDrawer";
-import { countValidCachets, countValidHours, type PaymentForCachets } from "@/lib/cachets";
+import { EditPaymentDrawer } from "@/components/modules/cachets/EditPaymentDrawer";
+import { CachetFilterSheet } from "@/components/modules/cachets/CachetFilterSheet";
+import {
+  countValidCachets,
+  countValidHours,
+  STATUS_LABEL,
+  writePaymentStatus,
+  type PaymentForCachets,
+} from "@/lib/cachets";
+import {
+  applyCachetFilters,
+  sortCachetsByDate,
+  countActiveFilters,
+  EMPTY_FILTERS,
+  type CachetFilters,
+} from "@/lib/cachetFilters";
 import { computeResteDu, type ManagementFeeForCalc, type ExpenseForCalc } from "@/lib/fees";
 
 export const Route = createFileRoute("/_authenticated/finance/")({
   component: FinancePage,
 });
 
-type FinanceFilter = "tous" | "cachets" | "track" | "label" | "à_venir";
-
-const FILTER_LABELS: Record<FinanceFilter, string> = {
-  tous: "Tous",
-  cachets: "Cachets",
-  track: "Tracks",
-  label: "Label",
-  à_venir: "À venir",
-};
-
-const INTERMITTENCE_SOURCES = [
-  "booking", "répétition", "formation", "accompagnement",
-  "figuration", "résidence", "clip",
+const SOURCE_OPTIONS = [
+  { value: "booking", label: "Concert" },
+  { value: "répétition", label: "Répétition" },
+  { value: "formation", label: "Formation" },
+  { value: "accompagnement", label: "Accompagnement" },
+  { value: "figuration", label: "Figuration" },
+  { value: "résidence", label: "Résidence" },
+  { value: "clip", label: "Clip" },
+  { value: "track", label: "Track" },
+  { value: "label", label: "Label" },
+  { value: "sacem", label: "SACEM" },
 ] as const;
 
-type FullPayment = RevenueLineData & PaymentForCachets;
+type FullPayment = RevenueLineData & PaymentForCachets & {
+  territory: "france" | "étranger";
+  deductible_expenses: number;
+};
 
 interface FeeWithPayment extends ManagementFeeForCalc {
   payment: { payment_date: string | null; status: string } | null;
@@ -38,9 +56,12 @@ interface FeeWithPayment extends ManagementFeeForCalc {
 function FinancePage() {
   const { profile } = useAuth();
   const isManager = profile?.role === "manager";
-  const [filter, setFilter] = useState<FinanceFilter>("tous");
+  const [filters, setFilters] = useState<CachetFilters>(EMPTY_FILTERS);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [sortAsc, setSortAsc] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [sacemOpen, setSacemOpen] = useState(false);
+  const [editPayment, setEditPayment] = useState<FullPayment | null>(null);
 
   const { data: allPayments, refresh: refreshPayments } = useCollection<FullPayment>(
     "payments",
@@ -77,29 +98,20 @@ function FinancePage() {
   const validHours = countValidHours(cachets);
   const resteDu = computeResteDu(filteredFees, expenses);
 
-  const now = new Date();
+  const searched = useMemo(() => applyCachetFilters(allPayments, filters), [allPayments, filters]);
+  const filtered = useMemo(() => sortCachetsByDate(searched, sortAsc), [searched, sortAsc]);
+  const activeFilterCount = countActiveFilters(filters);
 
-  const filtered = useMemo(() => {
-    switch (filter) {
-      case "cachets":
-        return allPayments.filter((p) =>
-          (INTERMITTENCE_SOURCES as readonly string[]).includes(p.source)
-        );
-      case "track":
-        return allPayments.filter((p) => p.source === "track");
-      case "label":
-        return allPayments.filter((p) => p.source === "label");
-      case "à_venir":
-        return allPayments.filter(
-          (p) =>
-            (p.payment_date != null && new Date(p.payment_date) > now) ||
-            p.status === "provisoire" ||
-            p.status === "cachet_en_attente"
-        );
-      default:
-        return allPayments;
-    }
-  }, [allPayments, filter, now]);
+  const handleSwipeStatusChange = (payment: FullPayment, next: FullPayment["status"]) => {
+    const previous = payment.status;
+    writePaymentStatus(payment.id, next);
+    toast.success(`Statut → ${STATUS_LABEL[next] ?? next}`, {
+      action: {
+        label: "Annuler",
+        onClick: () => writePaymentStatus(payment.id, previous),
+      },
+    });
+  };
 
   return (
     <>
@@ -138,32 +150,31 @@ function FinancePage() {
           </Link>
         </div>
 
-        {/* Filter chips */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
-          {(Object.keys(FILTER_LABELS) as FinanceFilter[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
-                filter === f
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              {FILTER_LABELS[f]}
-            </button>
-          ))}
-        </div>
+        <SearchFilterSortBar
+          search={filters.search}
+          onSearchChange={(value) => setFilters((f) => ({ ...f, search: value }))}
+          activeFilterCount={activeFilterCount}
+          onFilterClick={() => setFilterSheetOpen(true)}
+          sortAsc={sortAsc}
+          onSortToggle={() => setSortAsc((v) => !v)}
+        />
 
         {/* Revenue list */}
         <div className="space-y-2">
           {filtered.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Aucun revenu{filter !== "tous" ? " dans cette catégorie" : ""}.
+              Aucun revenu{activeFilterCount > 0 || filters.search ? " pour ces filtres" : ""}.
             </p>
           )}
           {filtered.map((p) => (
-            <RevenueLine key={p.id} revenue={p} />
+            <RevenueLine
+              key={p.id}
+              revenue={p}
+              onClick={() => setEditPayment(p)}
+              interactive={p.source !== "sacem"}
+              swipeEnabled={isManager}
+              onSwipeStatusChange={(next) => handleSwipeStatusChange(p, next)}
+            />
           ))}
         </div>
       </div>
@@ -188,6 +199,23 @@ function FinancePage() {
         open={sacemOpen}
         onOpenChange={setSacemOpen}
         onSuccess={refreshPayments}
+      />
+
+      <EditPaymentDrawer
+        open={editPayment !== null}
+        onOpenChange={(v) => {
+          if (!v) setEditPayment(null);
+        }}
+        payment={editPayment}
+        onSuccess={refreshPayments}
+      />
+
+      <CachetFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        filters={filters}
+        onChange={setFilters}
+        sourceOptions={SOURCE_OPTIONS}
       />
     </>
   );
