@@ -25,10 +25,21 @@ describe("countValidCachets", () => {
     expect(countValidCachets([make()])).toBe(1);
   });
 
-  it("ignores non-payé status", () => {
+  it("ignores provisoire/tbc status", () => {
     expect(countValidCachets([make({ status: "provisoire" })])).toBe(0);
-    expect(countValidCachets([make({ status: "facturé" })])).toBe(0);
-    expect(countValidCachets([make({ status: "cachet_en_attente" })])).toBe(0);
+    expect(countValidCachets([make({ status: "tbc" })])).toBe(0);
+  });
+
+  it("counts facturé and cachet_en_attente like payé when they have an expires_at", () => {
+    expect(countValidCachets([make({ status: "facturé" })])).toBe(1);
+    expect(countValidCachets([make({ status: "cachet_en_attente" })])).toBe(1);
+  });
+
+  it("counts facturé/cachet_en_attente via a 12-month payment_date window when expires_at is null", () => {
+    const withinWindow = make({ status: "facturé", expires_at: null, payment_date: past(180) });
+    const outsideWindow = make({ status: "cachet_en_attente", expires_at: null, payment_date: past(400) });
+    expect(countValidCachets([withinWindow])).toBe(1);
+    expect(countValidCachets([outsideWindow])).toBe(0);
   });
 
   it("ignores annulé status even with a valid expires_at", () => {

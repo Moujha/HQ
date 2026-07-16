@@ -1,4 +1,4 @@
-import { addDays, addYears } from "date-fns";
+import { addDays, addYears, subMonths } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,16 +14,28 @@ export interface PaymentForCachets {
   batch: { batch_count: number } | null;
 }
 
+const CONFIRMED_CACHET_STATUSES = ["payé", "cachet_en_attente", "facturé"] as const;
+
 /**
  * Count valid cachets for intermittence.
  * - Unbatched payment = 1 cachet
  * - Batch: count batch_count once per batch_id (deduplicates multi-payment batches)
+ *
+ * Matches the "Confirmé" bucket on the intermittence graph: payé, cachet_en_attente,
+ * and facturé all count (only provisoire/tbc and annulé don't). Payé payments always
+ * carry an expires_at set by the DB trigger, so they're checked strictly against it.
+ * cachet_en_attente/facturé payments don't get an expires_at from that trigger, so
+ * they fall back to a rolling 12-month window from payment_date instead.
  */
 function isValidAt(p: PaymentForCachets, date: Date): boolean {
-  if (p.status !== "payé") return false;
+  if (!(CONFIRMED_CACHET_STATUSES as readonly string[]).includes(p.status)) return false;
   if (!p.counts_for_intermittence) return false;
-  if (!p.expires_at) return false;
-  return new Date(p.expires_at) > date;
+  if (p.expires_at) return new Date(p.expires_at) > date;
+  if (p.status !== "payé" && p.payment_date) {
+    const pd = new Date(p.payment_date);
+    return pd >= subMonths(date, 12) && pd <= date;
+  }
+  return false;
 }
 
 export function countValidCachets(payments: PaymentForCachets[]): number {
@@ -97,13 +109,7 @@ export async function writePaymentStatus(id: string, status: PaymentForCachets["
  */
 export function countValidHours(payments: PaymentForCachets[]): number {
   const now = new Date();
-  const valid = payments.filter(
-    (p) =>
-      p.status === "payé" &&
-      p.counts_for_intermittence &&
-      p.expires_at != null &&
-      new Date(p.expires_at) > now,
-  );
+  const valid = payments.filter((p) => isValidAt(p, now));
 
   const seenBatches = new Set<string>();
   let total = 0;
