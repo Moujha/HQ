@@ -106,7 +106,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
 
   const maxY = Math.max(
     GOAL_CACHETS + 4,
-    ...data.map((d) => Math.max(d.confirmed, d.potential))
+    ...data.map((d) => d.confirmed + d.potential)
   );
 
   const tickFormatter = (ts: number) =>
@@ -248,10 +248,25 @@ export function IntermittenceGraph({ count, payments }: Props) {
               }}
             />
 
-            {/* Potential area (behind confirmed) */}
+            {/* Confirmed area (base layer) */}
+            <Area
+              type="monotone"
+              dataKey="confirmed"
+              stackId="cachets"
+              stroke="#4ade80"
+              strokeWidth={2}
+              fill="url(#gradConf)"
+              dot={false}
+              activeDot={{ r: 3 }}
+              name="confirmed"
+            />
+
+            {/* TBC area, stacked on top of confirmed — the combined top edge
+                shows whether confirmed + TBC would reach the goal line */}
             <Area
               type="monotone"
               dataKey="potential"
+              stackId="cachets"
               stroke="#94a3b8"
               strokeWidth={1.5}
               strokeDasharray="4 2"
@@ -259,18 +274,6 @@ export function IntermittenceGraph({ count, payments }: Props) {
               dot={false}
               activeDot={{ r: 3 }}
               name="potential"
-            />
-
-            {/* Confirmed area (in front) */}
-            <Area
-              type="monotone"
-              dataKey="confirmed"
-              stroke="#4ade80"
-              strokeWidth={2}
-              fill="url(#gradConf)"
-              dot={false}
-              activeDot={{ r: 3 }}
-              name="confirmed"
             />
           </AreaChart>
         </ResponsiveContainer>
