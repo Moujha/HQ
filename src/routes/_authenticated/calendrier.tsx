@@ -60,7 +60,7 @@ function CalendrierPage() {
 
   return (
     <>
-      <AppHeader title="Calendrier" />
+      <AppHeader title="Calendrier" backTo="/" />
 
       <div className="px-4 pt-4 pb-24 space-y-4">
         {nextEvent && (

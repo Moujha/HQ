@@ -21,7 +21,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/finance", replace: true });
+    if (!loading && user) navigate({ to: "/", replace: true });
   }, [user, loading, navigate]);
 
   // Return null during loading/redirect — avoids SSR↔client hydration mismatch
