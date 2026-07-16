@@ -42,7 +42,7 @@ export function countValidCachets(payments: PaymentForCachets[]): number {
   return total;
 }
 
-export const GOAL_CACHETS = 53;
+export const GOAL_CACHETS = 43;
 export const GOAL_HOURS = 507;
 export const HOURS_PER_CACHET = 12;
 

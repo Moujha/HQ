@@ -58,8 +58,8 @@ function countInWindow(
   return total;
 }
 
-const CONFIRMED_STATUSES = ["payé"] as const;
-const ALL_STATUSES = ["payé", "cachet_en_attente", "facturé", "provisoire", "tbc"] as const;
+const CONFIRMED_STATUSES = ["payé", "cachet_en_attente", "facturé"] as const;
+const TBC_STATUSES = ["provisoire", "tbc"] as const;
 
 function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
   const now = new Date();
@@ -73,7 +73,7 @@ function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
     points.push({
       ts: cur.getTime(),
       confirmed: countInWindow(payments, cur, CONFIRMED_STATUSES),
-      potential: countInWindow(payments, cur, ALL_STATUSES),
+      potential: countInWindow(payments, cur, TBC_STATUSES),
     });
     cur = addDays(cur, STEP);
   }
@@ -83,7 +83,7 @@ function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
     points.push({
       ts: todayTs,
       confirmed: countInWindow(payments, now, CONFIRMED_STATUSES),
-      potential: countInWindow(payments, now, ALL_STATUSES),
+      potential: countInWindow(payments, now, TBC_STATUSES),
     });
     points.sort((a, b) => a.ts - b.ts);
   }
@@ -106,7 +106,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
 
   const maxY = Math.max(
     GOAL_CACHETS + 4,
-    ...data.map((d) => d.potential)
+    ...data.map((d) => Math.max(d.confirmed, d.potential))
   );
 
   const tickFormatter = (ts: number) =>
@@ -280,7 +280,7 @@ export function IntermittenceGraph({ count, payments }: Props) {
       <div className="flex items-center gap-5 text-[10px] text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <div className="h-0.5 w-5 rounded-full bg-green-400" />
-          <span>Confirmés (payé)</span>
+          <span>Confirmés (payé, en attente, facturé)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <svg width="20" height="2" viewBox="0 0 20 2">
