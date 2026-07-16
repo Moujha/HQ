@@ -77,16 +77,16 @@ function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
     });
     cur = addDays(cur, STEP);
   }
-  // Ensure today is included
-  const todayTs = now.getTime();
-  if (!points.some((p) => Math.abs(p.ts - todayTs) < STEP * 86400000 * 0.5)) {
-    points.push({
-      ts: todayTs,
-      confirmed: countInWindow(payments, now, CONFIRMED_STATUSES),
-      potential: countInWindow(payments, now, TBC_STATUSES),
-    });
-    points.sort((a, b) => a.ts - b.ts);
-  }
+  // Always add an exact "today" point — with weekly sampling, the nearest
+  // sampled point is never more than 3.5 days from now, so a distance-based
+  // guard here would almost always skip this and let todayPoint (below)
+  // pick a stale nearby sample instead of the true current count.
+  points.push({
+    ts: now.getTime(),
+    confirmed: countInWindow(payments, now, CONFIRMED_STATUSES),
+    potential: countInWindow(payments, now, TBC_STATUSES),
+  });
+  points.sort((a, b) => a.ts - b.ts);
   return points;
 }
 
