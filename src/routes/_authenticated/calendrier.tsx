@@ -6,6 +6,7 @@ import { useCollection } from "@/hooks/use-collection";
 import { AppHeader } from "@/components/app/AppHeader";
 import { EventLine, type EventLineData } from "@/components/modules/calendrier/EventLine";
 import { AddEventDrawer } from "@/components/modules/calendrier/AddEventDrawer";
+import { mergeCalendarItems, type ConcertPayment } from "@/lib/calendrier";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
   component: CalendrierPage,
@@ -18,29 +19,6 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "tous", label: "Tous" },
   { key: "passé", label: "Passé" },
 ];
-
-interface ConcertPayment {
-  id: string;
-  notes: string | null;
-  source: string;
-  amount: number;
-  payment_date: string | null;
-  status: "provisoire" | "facturé" | "cachet_en_attente" | "payé" | "tbc";
-  event_id: string | null;
-}
-
-// Adapt a standalone booking/résidence payment to the EventLineData shape
-function paymentToCalendarEntry(p: ConcertPayment): EventLineData {
-  return {
-    id: p.id,
-    title: p.notes ?? p.source,
-    event_date: p.payment_date!,
-    location: null,
-    type: p.source === "résidence" ? "résidence" : "concert",
-    status: p.status === "provisoire" ? "TBC" : "confirmé",
-    payments: [{ id: p.id, status: p.status, amount: p.amount }],
-  };
-}
 
 function CalendrierPage() {
   const { profile } = useAuth();
@@ -69,26 +47,8 @@ function CalendrierPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Booking/résidence payments not yet attached to an event row
-  const CALENDAR_SOURCES = ["booking", "résidence", "répétition", "figuration"];
-  const standaloneConcerts = useMemo(
-    () =>
-      allPayments
-        .filter(
-          (p) =>
-            CALENDAR_SOURCES.includes(p.source) &&
-            p.event_id === null &&
-            p.payment_date !== null
-        )
-        .map(paymentToCalendarEntry),
-    [allPayments]
-  );
-
-  // Merge and sort by date
-  const allItems = useMemo(() => {
-    const merged = [...events, ...standaloneConcerts];
-    return merged.sort((a, b) => a.event_date.localeCompare(b.event_date));
-  }, [events, standaloneConcerts]);
+  // Merge events with standalone booking/résidence payments, sorted by date
+  const allItems = useMemo(() => mergeCalendarItems(events, allPayments), [events, allPayments]);
 
   const visible = useMemo(() => {
     if (filter === "à_venir") return allItems.filter((e) => e.event_date >= today);
