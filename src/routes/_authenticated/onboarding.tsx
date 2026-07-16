@@ -20,7 +20,7 @@ function Onboarding() {
 
   useEffect(() => {
     if (!loading && profile?.onboarded) {
-      navigate({ to: "/finance", replace: true });
+      navigate({ to: "/", replace: true });
     }
   }, [loading, profile, navigate]);
 
@@ -52,7 +52,7 @@ function Onboarding() {
             onClick={async () => {
               await supabase.from("profiles").update({ onboarded: true }).eq("user_id", user!.id);
               await refreshProfile();
-              navigate({ to: "/finance", replace: true });
+              navigate({ to: "/", replace: true });
             }}
           >
             C'est fait, continuer
@@ -62,7 +62,7 @@ function Onboarding() {
             onClick={async () => {
               await supabase.from("profiles").update({ onboarded: true }).eq("user_id", user!.id);
               await refreshProfile();
-              navigate({ to: "/finance", replace: true });
+              navigate({ to: "/", replace: true });
             }}
           >
             Ignorer pour l'instant
@@ -87,7 +87,7 @@ function Onboarding() {
       if (error) throw error;
       await refreshProfile();
       toast.success("Bienvenue !");
-      navigate({ to: "/finance", replace: true });
+      navigate({ to: "/", replace: true });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Impossible d'enregistrer");
       setBusy(false);

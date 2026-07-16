@@ -49,7 +49,7 @@ function TachesPage() {
 
   return (
     <>
-      <AppHeader title="Tâches" />
+      <AppHeader title="Tâches" backTo="/" />
 
       <div className="px-4 pt-4 pb-24 space-y-4">
         {/* Summary chip */}

@@ -32,7 +32,7 @@ function TracksPage() {
 
   return (
     <>
-      <AppHeader title="Tracks" />
+      <AppHeader title="Tracks" backTo="/" />
 
       <div className="px-4 pt-4 pb-24 space-y-4">
         <div className="rounded-2xl border border-border bg-card px-5 py-3 flex items-center justify-between">
