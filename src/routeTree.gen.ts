@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedTracksRouteImport } from './routes/_authenticated/tracks'
 import { Route as AuthenticatedTachesRouteImport } from './routes/_authenticated/taches'
@@ -37,10 +37,10 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -93,7 +93,7 @@ const AuthenticatedFinanceCachetsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
@@ -107,7 +107,6 @@ export interface FileRoutesByFullPath {
   '/finance/': typeof AuthenticatedFinanceIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
@@ -116,13 +115,13 @@ export interface FileRoutesByTo {
   '/taches': typeof AuthenticatedTachesRoute
   '/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/': typeof AuthenticatedIndexRoute
   '/finance/cachets': typeof AuthenticatedFinanceCachetsRoute
   '/finance/fees': typeof AuthenticatedFinanceFeesRoute
   '/finance': typeof AuthenticatedFinanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -132,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/taches': typeof AuthenticatedTachesRoute
   '/_authenticated/tracks': typeof AuthenticatedTracksRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/finance/cachets': typeof AuthenticatedFinanceCachetsRoute
   '/_authenticated/finance/fees': typeof AuthenticatedFinanceFeesRoute
   '/_authenticated/finance/': typeof AuthenticatedFinanceIndexRoute
@@ -153,7 +153,6 @@ export interface FileRouteTypes {
     | '/finance/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/auth'
     | '/unsubscribe'
     | '/calendrier'
@@ -162,12 +161,12 @@ export interface FileRouteTypes {
     | '/taches'
     | '/tracks'
     | '/email/unsubscribe'
+    | '/'
     | '/finance/cachets'
     | '/finance/fees'
     | '/finance'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
     | '/auth'
     | '/unsubscribe'
@@ -177,13 +176,13 @@ export interface FileRouteTypes {
     | '/_authenticated/taches'
     | '/_authenticated/tracks'
     | '/email/unsubscribe'
+    | '/_authenticated/'
     | '/_authenticated/finance/cachets'
     | '/_authenticated/finance/fees'
     | '/_authenticated/finance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
@@ -213,12 +212,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -292,6 +291,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSubventionsRoute: typeof AuthenticatedSubventionsRoute
   AuthenticatedTachesRoute: typeof AuthenticatedTachesRoute
   AuthenticatedTracksRoute: typeof AuthenticatedTracksRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedFinanceCachetsRoute: typeof AuthenticatedFinanceCachetsRoute
   AuthenticatedFinanceFeesRoute: typeof AuthenticatedFinanceFeesRoute
   AuthenticatedFinanceIndexRoute: typeof AuthenticatedFinanceIndexRoute
@@ -303,6 +303,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSubventionsRoute: AuthenticatedSubventionsRoute,
   AuthenticatedTachesRoute: AuthenticatedTachesRoute,
   AuthenticatedTracksRoute: AuthenticatedTracksRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedFinanceCachetsRoute: AuthenticatedFinanceCachetsRoute,
   AuthenticatedFinanceFeesRoute: AuthenticatedFinanceFeesRoute,
   AuthenticatedFinanceIndexRoute: AuthenticatedFinanceIndexRoute,
@@ -312,7 +313,6 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   UnsubscribeRoute: UnsubscribeRoute,
