@@ -10,85 +10,15 @@ import {
   ReferenceDot,
   ResponsiveContainer,
 } from "recharts";
-import { format, subMonths, addDays, addMonths } from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { GOAL_CACHETS, GOAL_HOURS, countValidHours, cachetCountFor, type PaymentForCachets } from "@/lib/cachets";
-
-interface TimelinePoint {
-  ts: number;
-  confirmed: number;
-  potential: number;
-}
-
-function countInWindow(
-  payments: PaymentForCachets[],
-  date: Date,
-  statuses: readonly string[]
-): number {
-  const seen = new Set<string>();
-  let total = 0;
-  for (const p of payments) {
-    if (!p.counts_for_intermittence) continue;
-    if (!(statuses as string[]).includes(p.status)) continue;
-
-    if (p.expires_at) {
-      // expires_at is set by DB trigger as payment_date + 12 months
-      const expiresAt = new Date(p.expires_at);
-      if (expiresAt <= date) continue; // expired before this sample date
-      // Exclude cachets earned after the sample date
-      if (p.payment_date && new Date(p.payment_date) > date) continue;
-    } else if (p.payment_date) {
-      // Future/pending cachets without expires_at: use 12-month rolling window
-      const pd = new Date(p.payment_date);
-      const windowStart = subMonths(date, 12);
-      if (pd < windowStart || pd > date) continue;
-    } else {
-      continue;
-    }
-
-    if (p.batch_id) {
-      if (!seen.has(p.batch_id)) {
-        seen.add(p.batch_id);
-        total += cachetCountFor(p);
-      }
-    } else {
-      total += cachetCountFor(p);
-    }
-  }
-  return total;
-}
-
-const CONFIRMED_STATUSES = ["payé", "cachet_en_attente", "facturé"] as const;
-const TBC_STATUSES = ["provisoire", "tbc"] as const;
-
-function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
-  const now = new Date();
-  const start = subMonths(now, 13);
-  const end = addMonths(now, 6);
-  const STEP = 7; // weekly samples
-
-  const points: TimelinePoint[] = [];
-  let cur = start;
-  while (cur <= end) {
-    points.push({
-      ts: cur.getTime(),
-      confirmed: countInWindow(payments, cur, CONFIRMED_STATUSES),
-      potential: countInWindow(payments, cur, TBC_STATUSES),
-    });
-    cur = addDays(cur, STEP);
-  }
-  // Always add an exact "today" point — with weekly sampling, the nearest
-  // sampled point is never more than 3.5 days from now, so a distance-based
-  // guard here would almost always skip this and let todayPoint (below)
-  // pick a stale nearby sample instead of the true current count.
-  points.push({
-    ts: now.getTime(),
-    confirmed: countInWindow(payments, now, CONFIRMED_STATUSES),
-    potential: countInWindow(payments, now, TBC_STATUSES),
-  });
-  points.sort((a, b) => a.ts - b.ts);
-  return points;
-}
+import {
+  GOAL_CACHETS,
+  GOAL_HOURS,
+  countValidHours,
+  buildTimeline,
+  type PaymentForCachets,
+} from "@/lib/cachets";
 
 interface Props {
   count: number;
