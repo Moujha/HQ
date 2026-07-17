@@ -1,7 +1,7 @@
 export interface ManagementFeeForCalc {
   id: string;
   commission_due: number;
-  status: "projetée" | "due" | "versée";
+  status: "projetée" | "due" | "versée" | "annulée";
   already_paid_to_manager: number;
   is_commissionable: boolean;
 }
