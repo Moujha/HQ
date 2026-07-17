@@ -1,13 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { computeResteDu, computeControlRate } from "@/lib/fees";
+import {
+  applyFeesFilters,
+  sortFeesByDate,
+  countActiveFeesFilters,
+  EMPTY_FEES_FILTERS,
+  type FeesFilters,
+} from "@/lib/feesFilters";
 import { AppHeader } from "@/components/app/AppHeader";
+import { SearchFilterSortBar } from "@/components/app/SearchFilterSortBar";
 import { FeeLine, type FeeLineData } from "@/components/modules/fees/FeeLine";
 import { VersementDrawer } from "@/components/modules/fees/VersementDrawer";
+import { AddExpenseDrawer } from "@/components/modules/fees/AddExpenseDrawer";
+import { FeesFilterSheet } from "@/components/modules/fees/FeesFilterSheet";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/finance/fees")({
   component: FeesPage,
@@ -30,6 +40,10 @@ interface ArtistSummary {
 function ManagerFeesView() {
   const { profile } = useAuth();
   const [versementOpen, setVersementOpen] = useState(false);
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false);
+  const [filters, setFilters] = useState<FeesFilters>(EMPTY_FEES_FILTERS);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [sortAsc, setSortAsc] = useState(false);
 
   const { data: fees, refresh: refreshFees } = useCollection<FeeLineData>("management_fees", {
     select: "*, payment:payments(notes, source, amount, payment_date, deductible_expenses)",
@@ -63,11 +77,15 @@ function ManagerFeesView() {
     .reduce((sum, e) => sum + e.amount, 0);
   const alreadyPaid = filteredFees.reduce((sum, f) => sum + f.already_paid_to_manager, 0);
 
+  const searched = useMemo(() => applyFeesFilters(filteredFees, filters), [filteredFees, filters]);
+  const displayedFees = useMemo(() => sortFeesByDate(searched, sortAsc), [searched, sortAsc]);
+  const activeFilterCount = countActiveFeesFilters(filters);
+
   return (
     <>
       <AppHeader title="Fees" subtitle={`depuis ${commissionStart}`} backTo="/finance" />
 
-      <div className="px-4 pt-4 pb-6 space-y-4">
+      <div className="px-4 pt-4 pb-24 space-y-4">
         {/* Hero card */}
         <div className="rounded-2xl border border-border bg-card px-5 py-4 space-y-3">
           <div>
@@ -120,24 +138,54 @@ function ManagerFeesView() {
           </button>
         </div>
 
+        <SearchFilterSortBar
+          search={filters.search}
+          onSearchChange={(value) => setFilters((f) => ({ ...f, search: value }))}
+          activeFilterCount={activeFilterCount}
+          onFilterClick={() => setFilterSheetOpen(true)}
+          sortAsc={sortAsc}
+          onSortToggle={() => setSortAsc((v) => !v)}
+        />
+
         {/* Fee lines */}
         <div className="space-y-2">
-          {filteredFees.length === 0 && (
+          {displayedFees.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Aucune ligne de commission.
+              Aucune ligne de commission{activeFilterCount > 0 || filters.search ? " pour ces filtres" : ""}.
             </p>
           )}
-          {filteredFees.map((f) => (
+          {displayedFees.map((f) => (
             <FeeLine key={f.id} fee={f} />
           ))}
         </div>
       </div>
+
+      <button
+        onClick={() => setAddExpenseOpen(true)}
+        aria-label="Ajouter une dépense"
+        className="fixed bottom-[max(env(safe-area-inset-bottom),1rem)] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
 
       <VersementDrawer
         open={versementOpen}
         onOpenChange={setVersementOpen}
         totalDue={resteDu}
         onSuccess={() => { refreshFees(); refreshExpenses(); }}
+      />
+
+      <AddExpenseDrawer
+        open={addExpenseOpen}
+        onOpenChange={setAddExpenseOpen}
+        onSuccess={refreshExpenses}
+      />
+
+      <FeesFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        filters={filters}
+        onChange={setFilters}
       />
     </>
   );
