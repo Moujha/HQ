@@ -208,7 +208,7 @@ export type Database = {
           commission_rate: number
           is_commissionable: boolean
           commission_due: number
-          status: "projetée" | "due" | "versée"
+          status: "projetée" | "due" | "versée" | "annulée"
           already_paid_to_manager: number
           created_at: string
         }
@@ -219,7 +219,7 @@ export type Database = {
           commission_rate?: number
           is_commissionable?: boolean
           commission_due?: number
-          status?: "projetée" | "due" | "versée"
+          status?: "projetée" | "due" | "versée" | "annulée"
           already_paid_to_manager?: number
           created_at?: string
         }
@@ -230,7 +230,7 @@ export type Database = {
           commission_rate?: number
           is_commissionable?: boolean
           commission_due?: number
-          status?: "projetée" | "due" | "versée"
+          status?: "projetée" | "due" | "versée" | "annulée"
           already_paid_to_manager?: number
           created_at?: string
         }

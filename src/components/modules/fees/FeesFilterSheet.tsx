@@ -5,6 +5,7 @@ const STATUS_OPTIONS = [
   { value: "projetée", label: "Projetée" },
   { value: "due", label: "Due" },
   { value: "versée", label: "Versée" },
+  { value: "annulée", label: "Annulée" },
 ] as const;
 
 interface Props {

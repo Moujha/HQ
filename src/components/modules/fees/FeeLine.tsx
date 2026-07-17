@@ -7,7 +7,7 @@ export interface FeeLineData {
   commission_rate: number;
   commission_due: number;
   is_commissionable: boolean;
-  status: "projetée" | "due" | "versée";
+  status: "projetée" | "due" | "versée" | "annulée";
   already_paid_to_manager: number;
   payment: {
     notes: string | null;
@@ -22,12 +22,14 @@ const STATUS_CLASS: Record<string, string> = {
   projetée: "text-muted-foreground bg-muted",
   due: "text-amber-400 bg-amber-400/10",
   versée: "text-green-400 bg-green-400/10",
+  annulée: "text-muted-foreground bg-muted line-through",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   projetée: "Projetée",
   due: "Due",
   versée: "Versée",
+  annulée: "Annulée",
 };
 
 export function FeeLine({ fee }: { fee: FeeLineData }) {
