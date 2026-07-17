@@ -75,7 +75,7 @@ function TracksPage() {
       </div>
 
       {profile?.role === "manager" && (
-        <div className="fixed bottom-[max(env(safe-area-inset-bottom),1rem)] right-4 z-40 flex flex-col items-end gap-3">
+        <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 flex flex-col items-end gap-3">
           <button
             onClick={() => setSacemOpen(true)}
             className="grid h-12 w-12 place-items-center rounded-full bg-card border border-border text-foreground shadow-md transition active:scale-95"

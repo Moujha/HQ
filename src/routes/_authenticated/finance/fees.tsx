@@ -163,7 +163,7 @@ function ManagerFeesView() {
       <button
         onClick={() => setAddExpenseOpen(true)}
         aria-label="Ajouter une dépense"
-        className="fixed bottom-[max(env(safe-area-inset-bottom),1rem)] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
       >
         <Plus className="h-6 w-6" />
       </button>
