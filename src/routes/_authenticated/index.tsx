@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { Wallet, Music2, CheckSquare, Calendar, Disc3, Landmark } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
@@ -9,6 +10,7 @@ import { CockpitTile } from "@/components/app/CockpitTile";
 import {
   countValidCachets,
   countValidHours,
+  buildTimeline,
   GOAL_CACHETS,
   GOAL_HOURS,
   type PaymentForCachets,
@@ -90,11 +92,55 @@ function ArtistFinanceTile() {
   );
 }
 
-// ── Cachets tile ────────────────────────────────────────────────
+// ── Calendrier hero card ──────────────────────────────────────────
+
+function CalendrierHeroCard() {
+  const { data: events } = useCollection<EventLineData>("events", {
+    select: "id, title, event_date, location, type, status, payments(id, status, amount)",
+  });
+  const { data: payments } = useCollection<ConcertPayment>("payments", {
+    select: "id, notes, source, amount, payment_date, status, event_id",
+  });
+
+  const nextEvent = computeNextEvent(events, payments);
+
+  return (
+    <Link
+      to="/calendrier"
+      className="block rounded-2xl border border-border bg-card px-5 py-5 transition active:scale-[0.98]"
+    >
+      <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+        <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        Prochain événement
+      </div>
+      {nextEvent ? (
+        <>
+          <p className="mt-2 font-display text-2xl font-bold text-foreground truncate">
+            {nextEvent.title}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {new Date(nextEvent.event_date).toLocaleDateString("fr-FR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+            {nextEvent.location && ` · ${nextEvent.location}`}
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 font-display text-xl font-bold text-foreground">
+          Aucun événement à venir
+        </p>
+      )}
+    </Link>
+  );
+}
+
+// ── Cachets hero card ─────────────────────────────────────────────
 
 type CachetPayment = PaymentForCachets & { source: string };
 
-function CachetsTile() {
+function CachetsHeroCard() {
   const { data: payments } = useCollection<CachetPayment>("payments", {
     select:
       "id, status, counts_for_intermittence, expires_at, payment_date, amount, hours, batch_id, source, batch:payment_batches(batch_count)",
@@ -103,15 +149,57 @@ function CachetsTile() {
   const cachets = payments.filter((p) => p.source !== "sacem");
   const validCount = countValidCachets(cachets);
   const validHours = countValidHours(cachets);
+  const timeline = useMemo(() => buildTimeline(cachets), [cachets]);
 
   return (
-    <CockpitTile
+    <Link
       to="/finance/cachets"
-      label="Cachets"
-      icon={Music2}
-      headline={`${validCount} / ${GOAL_CACHETS}`}
-      detail={`${validHours} / ${GOAL_HOURS} h`}
-    />
+      className="block rounded-2xl border border-border bg-card px-5 py-5 transition active:scale-[0.98]"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            <Music2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            Cachets
+          </div>
+          <p className="mt-1 font-display text-2xl font-bold text-foreground">
+            {validCount} <span className="text-sm font-normal text-muted-foreground">/ {GOAL_CACHETS}</span>
+          </p>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {validHours} / {GOAL_HOURS} h
+        </p>
+      </div>
+      <div className="mt-2 h-10">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={timeline} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+            <Area
+              type="monotone"
+              dataKey="confirmed"
+              stackId="cachets"
+              stroke="#4ade80"
+              strokeWidth={2}
+              fill="#4ade80"
+              fillOpacity={0.15}
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Area
+              type="monotone"
+              dataKey="potential"
+              stackId="cachets"
+              stroke="#94a3b8"
+              strokeWidth={1.5}
+              strokeDasharray="4 2"
+              fill="#94a3b8"
+              fillOpacity={0.08}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </Link>
   );
 }
 
@@ -140,36 +228,6 @@ function TachesTile() {
       icon={CheckSquare}
       headline={`${todoCount}`}
       detail={todoCount > 0 ? "en attente" : "à jour"}
-    />
-  );
-}
-
-// ── Calendrier tile ─────────────────────────────────────────────
-
-function CalendrierTile() {
-  const { data: events } = useCollection<EventLineData>("events", {
-    select: "id, title, event_date, location, type, status, payments(id, status, amount)",
-  });
-  const { data: payments } = useCollection<ConcertPayment>("payments", {
-    select: "id, notes, source, amount, payment_date, status, event_id",
-  });
-
-  const nextEvent = computeNextEvent(events, payments);
-
-  return (
-    <CockpitTile
-      to="/calendrier"
-      label="Calendrier"
-      icon={Calendar}
-      headline={nextEvent ? nextEvent.title : "Aucun événement"}
-      detail={
-        nextEvent
-          ? new Date(nextEvent.event_date).toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-            }) + (nextEvent.location ? ` · ${nextEvent.location}` : "")
-          : undefined
-      }
     />
   );
 }
@@ -241,13 +299,15 @@ function CockpitPage() {
   return (
     <>
       <AppHeader title="Cockpit" />
-      <div className="px-4 pt-4 pb-24 grid grid-cols-2 gap-3">
-        {isManager ? <ManagerFinanceTile /> : <ArtistFinanceTile />}
-        <CachetsTile />
-        <TachesTile />
-        <CalendrierTile />
-        <TracksTile />
-        <SubventionsTile />
+      <div className="px-4 pt-4 pb-24 space-y-3">
+        <CalendrierHeroCard />
+        <CachetsHeroCard />
+        <div className="grid grid-cols-2 gap-3">
+          {isManager ? <ManagerFinanceTile /> : <ArtistFinanceTile />}
+          <TachesTile />
+          <TracksTile />
+          <SubventionsTile />
+        </div>
       </div>
     </>
   );
