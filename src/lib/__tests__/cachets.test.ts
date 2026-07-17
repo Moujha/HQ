@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { addDays, subDays } from "date-fns";
-import { countValidCachets, expiringWithin, nextStatus, previousStatus } from "../cachets";
+import { addDays, subDays, subMonths, addMonths } from "date-fns";
+import { countValidCachets, expiringWithin, nextStatus, previousStatus, buildTimeline } from "../cachets";
 
 const future = (days: number) => addDays(new Date(), days).toISOString().split("T")[0];
 const past = (days: number) => subDays(new Date(), days).toISOString().split("T")[0];
@@ -145,5 +145,83 @@ describe("nextStatus / previousStatus", () => {
     expect(previousStatus("facturé")).toBe("cachet_en_attente");
     expect(previousStatus("cachet_en_attente")).toBe("provisoire");
     expect(previousStatus("provisoire")).toBe("annulé");
+  });
+});
+
+describe("buildTimeline", () => {
+  it("returns points sorted ascending by timestamp", () => {
+    const timeline = buildTimeline([make()]);
+    for (let i = 1; i < timeline.length; i++) {
+      expect(timeline[i].ts).toBeGreaterThanOrEqual(timeline[i - 1].ts);
+    }
+  });
+
+  it("includes an exact point for today", () => {
+    const timeline = buildTimeline([make()]);
+    const nowTs = Date.now();
+    const closest = timeline.reduce((a, b) =>
+      Math.abs(b.ts - nowTs) < Math.abs(a.ts - nowTs) ? b : a
+    );
+    expect(Math.abs(closest.ts - nowTs)).toBeLessThan(2000);
+  });
+
+  it("spans from ~13 months ago to ~6 months ahead", () => {
+    const timeline = buildTimeline([]);
+    const first = timeline[0];
+    const last = timeline[timeline.length - 1];
+    const thirteenMonthsAgo = subMonths(new Date(), 13).getTime();
+    const sixMonthsAhead = addMonths(new Date(), 6).getTime();
+    expect(Math.abs(first.ts - thirteenMonthsAgo)).toBeLessThan(24 * 60 * 60 * 1000);
+    expect(Math.abs(last.ts - sixMonthsAhead)).toBeLessThan(24 * 60 * 60 * 1000);
+  });
+
+  it("counts a currently-valid payé payment as confirmed at today's point", () => {
+    const timeline = buildTimeline([
+      make({ status: "payé", expires_at: future(30), payment_date: past(30) }),
+    ]);
+    const nowTs = Date.now();
+    const todayPoint = timeline.reduce((a, b) =>
+      Math.abs(b.ts - nowTs) < Math.abs(a.ts - nowTs) ? b : a
+    );
+    expect(todayPoint.confirmed).toBe(1);
+    expect(todayPoint.potential).toBe(0);
+  });
+
+  it("counts a provisoire payment as potential, not confirmed, at today's point", () => {
+    const timeline = buildTimeline([
+      make({ status: "provisoire", expires_at: null, payment_date: past(10) }),
+    ]);
+    const nowTs = Date.now();
+    const todayPoint = timeline.reduce((a, b) =>
+      Math.abs(b.ts - nowTs) < Math.abs(a.ts - nowTs) ? b : a
+    );
+    expect(todayPoint.confirmed).toBe(0);
+    expect(todayPoint.potential).toBe(1);
+  });
+
+  it("deduplicates a batched payment within the same window", () => {
+    const timeline = buildTimeline([
+      make({
+        id: "p1",
+        batch_id: "b1",
+        batch: { batch_count: 3 },
+        status: "payé",
+        expires_at: future(30),
+        payment_date: past(30),
+      }),
+      make({
+        id: "p2",
+        batch_id: "b1",
+        batch: { batch_count: 3 },
+        status: "payé",
+        expires_at: future(30),
+        payment_date: past(30),
+      }),
+    ]);
+    const nowTs = Date.now();
+    const todayPoint = timeline.reduce((a, b) =>
+      Math.abs(b.ts - nowTs) < Math.abs(a.ts - nowTs) ? b : a
+    );
+    expect(todayPoint.confirmed).toBe(3);
   });
 });

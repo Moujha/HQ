@@ -1,4 +1,4 @@
-import { addDays, addYears, subMonths } from "date-fns";
+import { addDays, addMonths, addYears, subMonths } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -254,4 +254,87 @@ export function expiringWithin(
       new Date(p.expires_at) > now &&
       new Date(p.expires_at) <= limit
   );
+}
+
+// ── Timeline ──────────────────────────────────────────────────
+
+export interface TimelinePoint {
+  ts: number;
+  confirmed: number;
+  potential: number;
+}
+
+const TBC_STATUSES = ["provisoire", "tbc"] as const;
+
+function countInWindow(
+  payments: PaymentForCachets[],
+  date: Date,
+  statuses: readonly string[]
+): number {
+  const seen = new Set<string>();
+  let total = 0;
+  for (const p of payments) {
+    if (!p.counts_for_intermittence) continue;
+    if (!(statuses as string[]).includes(p.status)) continue;
+
+    if (p.expires_at) {
+      const expiresAt = new Date(p.expires_at);
+      if (expiresAt <= date) continue;
+      if (p.payment_date && new Date(p.payment_date) > date) continue;
+    } else if (p.payment_date) {
+      const pd = new Date(p.payment_date);
+      const windowStart = subMonths(date, 12);
+      if (pd < windowStart || pd > date) continue;
+    } else {
+      continue;
+    }
+
+    if (p.batch_id) {
+      if (!seen.has(p.batch_id)) {
+        seen.add(p.batch_id);
+        total += cachetCountFor(p);
+      }
+    } else {
+      total += cachetCountFor(p);
+    }
+  }
+  return total;
+}
+
+/**
+ * Build a weekly-sampled timeline of confirmed vs. TBC cachet counts, from
+ * 13 months ago to 6 months from now, plus an exact "today" point (weekly
+ * sampling alone rarely lands exactly on today).
+ */
+export function buildTimeline(payments: PaymentForCachets[]): TimelinePoint[] {
+  const now = new Date();
+  const start = subMonths(now, 13);
+  const end = addMonths(now, 6);
+  const STEP = 7;
+
+  const points: TimelinePoint[] = [];
+  let cur = start;
+  while (cur <= end) {
+    points.push({
+      ts: cur.getTime(),
+      confirmed: countInWindow(payments, cur, CONFIRMED_CACHET_STATUSES),
+      potential: countInWindow(payments, cur, TBC_STATUSES),
+    });
+    cur = addDays(cur, STEP);
+  }
+  points.push({
+    ts: now.getTime(),
+    confirmed: countInWindow(payments, now, CONFIRMED_CACHET_STATUSES),
+    potential: countInWindow(payments, now, TBC_STATUSES),
+  });
+  // Weekly stepping from `start` rarely lands exactly on `end` (the ~19-month
+  // span is almost never a multiple of 7 days), so guarantee an exact end
+  // boundary point too, mirroring the "today" guard above.
+  points.push({
+    ts: end.getTime(),
+    confirmed: countInWindow(payments, end, CONFIRMED_CACHET_STATUSES),
+    potential: countInWindow(payments, end, TBC_STATUSES),
+  });
+  points.sort((a, b) => a.ts - b.ts);
+  return points;
 }
