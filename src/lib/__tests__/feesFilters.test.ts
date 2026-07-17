@@ -67,6 +67,18 @@ describe("applyFeesFilters", () => {
     const fees = [make({ payment: null })];
     expect(applyFeesFilters(fees, { search: "concert", statuses: [] })).toHaveLength(0);
   });
+
+  it("returns everything except annulée when no status filter is set", () => {
+    const fees = [make({ id: "a", status: "due" }), make({ id: "b", status: "annulée" })];
+    const result = applyFeesFilters(fees, EMPTY_FEES_FILTERS);
+    expect(result.map((f) => f.id)).toEqual(["a"]);
+  });
+
+  it("includes annulée when explicitly selected in the status filter", () => {
+    const fees = [make({ id: "a", status: "due" }), make({ id: "b", status: "annulée" })];
+    const result = applyFeesFilters(fees, { search: "", statuses: ["annulée"] });
+    expect(result.map((f) => f.id)).toEqual(["b"]);
+  });
 });
 
 describe("sortFeesByDate", () => {

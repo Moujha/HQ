@@ -28,7 +28,9 @@ export function applyFeesFilters<T extends FeeForFilter>(
   const search = normalizeForSearch(filters.search.trim());
 
   return fees.filter((f) => {
-    if (filters.statuses.length > 0 && !filters.statuses.includes(f.status)) {
+    if (filters.statuses.length > 0) {
+      if (!filters.statuses.includes(f.status)) return false;
+    } else if (f.status === "annulée") {
       return false;
     }
 
