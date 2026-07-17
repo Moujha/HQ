@@ -3,7 +3,7 @@ import {
   Music2,
   Wallet,
   CheckSquare,
-  Calendar,
+  Home,
   MoreHorizontal,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,18 +16,21 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+const HOME = { to: "/", label: "Accueil", icon: Home } as const;
 const FINANCE = { to: "/finance", label: "Finance", icon: Wallet } as const;
 const CACHETS = { to: "/finance/cachets", label: "Cachets", icon: Music2 } as const;
 const TACHES = { to: "/taches", label: "Tâches", icon: CheckSquare } as const;
-const CALENDRIER = { to: "/calendrier", label: "Agenda", icon: Calendar } as const;
 
-const MANAGER_PRIMARY = [FINANCE, TACHES, CALENDRIER] as const;
-const ARTIST_PRIMARY = [CACHETS, TACHES, CALENDRIER] as const;
+const MANAGER_PRIMARY = [HOME, FINANCE, TACHES] as const;
+const ARTIST_PRIMARY = [HOME, CACHETS, TACHES] as const;
 
 const MANAGER_MORE = [
+  { to: "/calendrier", label: "Agenda" },
   { to: "/tracks", label: "Tracks" },
   { to: "/subventions", label: "Subventions" },
 ] as const;
+
+const ARTIST_MORE = [{ to: "/calendrier", label: "Agenda" }] as const;
 
 export function BottomNav() {
   const { profile } = useAuth();
@@ -36,10 +39,9 @@ export function BottomNav() {
 
   const isManager = profile?.role === "manager";
   const primaryTabs = isManager ? MANAGER_PRIMARY : ARTIST_PRIMARY;
+  const moreItems = isManager ? MANAGER_MORE : ARTIST_MORE;
 
-  const moreActive = isManager
-    ? MANAGER_MORE.some((t) => pathname.startsWith(t.to))
-    : false;
+  const moreActive = moreItems.some((t) => pathname.startsWith(t.to));
 
   return (
     <nav
@@ -51,7 +53,9 @@ export function BottomNav() {
           const active =
             t.to === "/finance"
               ? pathname.startsWith("/finance")
-              : pathname.startsWith(t.to);
+              : t.to === "/"
+                ? pathname === "/"
+                : pathname.startsWith(t.to);
           const Icon = t.icon;
           return (
             <Link
@@ -72,45 +76,43 @@ export function BottomNav() {
           );
         })}
 
-        {isManager && (
-          <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-            <SheetTrigger asChild>
-              <button
-                className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[0.64rem] font-medium transition ${
-                  moreActive ? "text-foreground" : "text-muted-foreground"
-                }`}
-                aria-label="Plus de modules"
-              >
-                <MoreHorizontal className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-                Plus
-              </button>
-            </SheetTrigger>
-            <SheetContent
-              side="bottom"
-              className="rounded-t-3xl pb-[env(safe-area-inset-bottom)]"
+        <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+          <SheetTrigger asChild>
+            <button
+              className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[0.64rem] font-medium transition ${
+                moreActive ? "text-foreground" : "text-muted-foreground"
+              }`}
+              aria-label="Plus de modules"
             >
-              <SheetHeader className="mb-4">
-                <SheetTitle className="font-display text-lg">Modules</SheetTitle>
-              </SheetHeader>
-              <div className="grid grid-cols-3 gap-3 pb-4">
-                {MANAGER_MORE.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMoreOpen(false)}
-                    className={`flex flex-col items-center justify-center gap-2 rounded-2xl border py-4 text-sm font-medium transition ${
-                      pathname.startsWith(item.to)
-                        ? "border-foreground/30 bg-card text-foreground"
-                        : "border-border bg-card text-muted-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
-        )}
+              <MoreHorizontal className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+              Plus
+            </button>
+          </SheetTrigger>
+          <SheetContent
+            side="bottom"
+            className="rounded-t-3xl pb-[env(safe-area-inset-bottom)]"
+          >
+            <SheetHeader className="mb-4">
+              <SheetTitle className="font-display text-lg">Modules</SheetTitle>
+            </SheetHeader>
+            <div className={`grid gap-3 pb-4 ${moreItems.length === 1 ? "grid-cols-1" : "grid-cols-3"}`}>
+              {moreItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMoreOpen(false)}
+                  className={`flex flex-col items-center justify-center gap-2 rounded-2xl border py-4 text-sm font-medium transition ${
+                    pathname.startsWith(item.to)
+                      ? "border-foreground/30 bg-card text-foreground"
+                      : "border-border bg-card text-muted-foreground"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </nav>
   );
