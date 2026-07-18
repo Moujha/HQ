@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { notifyRole } from "@/lib/notify";
 
 type Step = "method" | "type" | "amount" | "details" | "review";
 type RevenueType = "booking" | "répétition" | "formation" | "accompagnement" | "figuration" | "résidence" | "clip" | "track" | "label";
@@ -183,6 +184,13 @@ export function AddRevenueSheet({
         created_by: user?.id,
       });
       if (error) throw error;
+
+      void notifyRole({
+        recipientRole: "artist",
+        title: "Nouveau revenu",
+        body: `${form.notes} — ${parseFloat(form.amount).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`,
+        url: "/finance",
+      });
 
       toast.success("Revenu ajouté");
       window.dispatchEvent(new Event("mc-refresh"));
