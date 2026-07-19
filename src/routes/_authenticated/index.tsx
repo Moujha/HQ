@@ -7,6 +7,7 @@ import { useCollection } from "@/hooks/use-collection";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/app/AppHeader";
 import { CockpitTile } from "@/components/app/CockpitTile";
+import { NotificationsToggle } from "@/components/app/NotificationsToggle";
 import {
   countValidCachets,
   countValidHours,
@@ -308,6 +309,7 @@ function CockpitPage() {
           <TracksTile />
           <SubventionsTile />
         </div>
+        <NotificationsToggle />
       </div>
     </>
   );
