@@ -4,6 +4,8 @@ import { fr } from "date-fns/locale";
 import { AlertCircle, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { notifyRole, shouldNotifyRole } from "@/lib/notify";
 
 export interface TaskLineData {
   id: string;
@@ -45,6 +47,7 @@ interface Props {
 }
 
 export function TaskLine({ task, onSuccess }: Props) {
+  const { profile } = useAuth();
   const [busy, setBusy] = useState(false);
 
   const cycleStatus = async () => {
@@ -57,6 +60,19 @@ export function TaskLine({ task, onSuccess }: Props) {
         .update({ status: next })
         .eq("id", task.id);
       if (error) throw error;
+
+      if (profile?.role) {
+        const recipient = shouldNotifyRole(profile.role, task.assignee_role);
+        if (recipient) {
+          void notifyRole({
+            recipientRole: recipient,
+            title: "Tâche mise à jour",
+            body: `${task.title} → ${STATUS_LABEL[next]}`,
+            url: "/taches",
+          });
+        }
+      }
+
       onSuccess?.();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Erreur");

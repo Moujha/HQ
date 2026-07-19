@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { countValidCachets, expiringWithin, STATUS_LABEL, writePaymentStatus } from "@/lib/cachets";
+import { notifyRole } from "@/lib/notify";
 import { applyCachetFilters, sortCachetsByDate, countActiveFilters, EMPTY_FILTERS, type CachetFilters } from "@/lib/cachetFilters";
 import { AppHeader } from "@/components/app/AppHeader";
 import { SearchFilterSortBar } from "@/components/app/SearchFilterSortBar";
@@ -52,6 +53,17 @@ function CachetsPage() {
   const handleSwipeStatusChange = (payment: FullPaymentRow, next: PaymentRow["status"]) => {
     const previous = payment.status;
     writePaymentStatus(payment.id, next);
+    if (next === "payé" || next === "annulé") {
+      void notifyRole({
+        recipientRole: "artist",
+        title: next === "payé" ? "Paiement reçu" : "Paiement annulé",
+        body:
+          next === "payé"
+            ? `${payment.notes} — ${payment.amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`
+            : payment.notes ?? undefined,
+        url: "/finance/cachets",
+      });
+    }
     toast.success(`Statut → ${STATUS_LABEL[next] ?? next}`, {
       action: {
         label: "Annuler",

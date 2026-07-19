@@ -90,16 +90,14 @@ function TachesPage() {
         </div>
       </div>
 
-      {/* FAB — manager only */}
-      {profile?.role === "manager" && (
-        <button
-          onClick={() => setAddOpen(true)}
-          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
-          aria-label="Nouvelle tâche"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
+      {/* FAB — both roles can create a task */}
+      <button
+        onClick={() => setAddOpen(true)}
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-foreground text-background shadow-lg transition active:scale-95"
+        aria-label="Nouvelle tâche"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
 
       <AddTaskDrawer open={addOpen} onOpenChange={setAddOpen} onSuccess={refresh} />
     </>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyRole } from "@/lib/notify";
 
 const schema = z.object({
   title: z.string().min(1, "Requis"),
@@ -63,6 +64,14 @@ export function AddGrantDrawer({ open, onOpenChange, onSuccess }: Props) {
         notes: data.notes || null,
       });
       if (error) throw error;
+
+      void notifyRole({
+        recipientRole: "artist",
+        title: "Nouvelle subvention",
+        body: data.title,
+        url: "/subventions",
+      });
+
       toast.success("Subvention ajoutée");
       reset();
       onOpenChange(false);

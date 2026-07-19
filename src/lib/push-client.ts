@@ -3,7 +3,7 @@ import { savePushSubscription, deletePushSubscription } from "@/lib/push.functio
 
 // Public VAPID key (safe to ship to the browser).
 const VAPID_PUBLIC_KEY =
-  "BKaNYBhLpcsgBk57Ibim6koyC9th3qpDlsooUPzSCyej1GHbJnxeC8jGvs1jM_8V4oo4icdqk2--rO_WLcapcMQ";
+  "BO2pNk71haUetMpY7pggit0OGIn5FtzgzB8IBINow9rv0X3AofHgb9kuG4GIRxzgZoIsSvLENaQ7Ha6vgp2BPAA";
 
 const PUSH_SW_URL = "/push-sw.js";
 const PUSH_SW_SCOPE = "/push-notifications";

@@ -18,6 +18,7 @@ import {
   writePaymentStatus,
   type PaymentForCachets,
 } from "@/lib/cachets";
+import { notifyRole } from "@/lib/notify";
 import {
   applyCachetFilters,
   sortCachetsByDate,
@@ -105,6 +106,17 @@ function FinancePage() {
   const handleSwipeStatusChange = (payment: FullPayment, next: FullPayment["status"]) => {
     const previous = payment.status;
     writePaymentStatus(payment.id, next);
+    if (next === "payé" || next === "annulé") {
+      void notifyRole({
+        recipientRole: "artist",
+        title: next === "payé" ? "Paiement reçu" : "Paiement annulé",
+        body:
+          next === "payé"
+            ? `${payment.notes} — ${payment.amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`
+            : payment.notes ?? undefined,
+        url: "/finance",
+      });
+    }
     toast.success(`Statut → ${STATUS_LABEL[next] ?? next}`, {
       action: {
         label: "Annuler",

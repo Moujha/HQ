@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyRole } from "@/lib/notify";
 import type { PaymentRow } from "./CachetRow";
 
 const schema = z.object({
@@ -124,6 +125,18 @@ export function EditPaymentDrawer({ open, onOpenChange, payment, onSuccess }: Pr
         .eq("id", payment.id);
 
       if (error) throw error;
+
+      if (data.status !== payment.status && (data.status === "payé" || data.status === "annulé")) {
+        void notifyRole({
+          recipientRole: "artist",
+          title: data.status === "payé" ? "Paiement reçu" : "Paiement annulé",
+          body:
+            data.status === "payé"
+              ? `${data.notes} — ${data.amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`
+              : data.notes,
+          url: "/finance",
+        });
+      }
 
       toast.success("Cachet modifié");
       window.dispatchEvent(new Event("mc-refresh"));
