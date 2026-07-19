@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -43,11 +43,21 @@ export function AddTaskDrawer({ open, onOpenChange, onSuccess }: Props) {
   const isArtist = profile?.role === "artist";
   const [busy, setBusy] = useState(false);
 
-  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } =
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors, dirtyFields } } =
     useForm<FormValues>({
       resolver: zodResolver(schema),
       defaultValues: { assignee_role: isArtist ? "artist" : "manager", priority: "normal" },
     });
+
+  // `defaultValues` is captured once at mount. `profile` may still be null at
+  // that point (loaded asynchronously), so `isArtist` can be stale for the
+  // initial render. Re-sync once the real role is known, but never fight the
+  // user if they've already picked a role themselves.
+  useEffect(() => {
+    if (!profile) return;
+    if (dirtyFields.assignee_role) return;
+    setValue("assignee_role", isArtist ? "artist" : "manager");
+  }, [profile, isArtist, dirtyFields.assignee_role, setValue]);
 
   const roleOptions = isArtist ? ARTIST_ROLE_OPTIONS : MANAGER_ROLE_OPTIONS;
 
@@ -114,7 +124,7 @@ export function AddTaskDrawer({ open, onOpenChange, onSuccess }: Props) {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setValue("assignee_role", opt.value)}
+                  onClick={() => setValue("assignee_role", opt.value, { shouldDirty: true })}
                   className={`flex-1 rounded-full border py-2 text-xs font-medium transition ${
                     watch("assignee_role") === opt.value
                       ? "border-foreground bg-foreground text-background"
