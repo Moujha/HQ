@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { notifyRole, shouldNotifyRole } from "@/lib/notify";
 
 const schema = z.object({
   title: z.string().min(1, "Requis"),
@@ -25,20 +27,29 @@ interface Props {
   onSuccess?: () => void;
 }
 
-const ROLE_OPTIONS = [
+const MANAGER_ROLE_OPTIONS = [
   { value: "manager", label: "Manager" },
   { value: "artist", label: "Artiste" },
   { value: "both", label: "Tous" },
 ] as const;
 
+const ARTIST_ROLE_OPTIONS = [
+  { value: "artist", label: "Moi" },
+  { value: "both", label: "Tous" },
+] as const;
+
 export function AddTaskDrawer({ open, onOpenChange, onSuccess }: Props) {
+  const { profile } = useAuth();
+  const isArtist = profile?.role === "artist";
   const [busy, setBusy] = useState(false);
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } =
     useForm<FormValues>({
       resolver: zodResolver(schema),
-      defaultValues: { assignee_role: "manager", priority: "normal" },
+      defaultValues: { assignee_role: isArtist ? "artist" : "manager", priority: "normal" },
     });
+
+  const roleOptions = isArtist ? ARTIST_ROLE_OPTIONS : MANAGER_ROLE_OPTIONS;
 
   const submit = async (data: FormValues) => {
     setBusy(true);
@@ -51,6 +62,19 @@ export function AddTaskDrawer({ open, onOpenChange, onSuccess }: Props) {
         deadline: data.deadline || null,
       });
       if (error) throw error;
+
+      if (profile?.role) {
+        const recipient = shouldNotifyRole(profile.role, data.assignee_role);
+        if (recipient) {
+          void notifyRole({
+            recipientRole: recipient,
+            title: "Nouvelle tâche",
+            body: data.title,
+            url: "/taches",
+          });
+        }
+      }
+
       toast.success("Tâche créée");
       reset();
       onOpenChange(false);
@@ -86,7 +110,7 @@ export function AddTaskDrawer({ open, onOpenChange, onSuccess }: Props) {
           <div className="space-y-1.5">
             <Label>Assigné à</Label>
             <div className="flex gap-2">
-              {ROLE_OPTIONS.map((opt) => (
+              {roleOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
