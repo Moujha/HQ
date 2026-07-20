@@ -71,7 +71,7 @@ function AuthPage() {
             BLOU FEET
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {mode === "signin" ? "Connexion à ton espace" : "Créer un compte manager"}
+            {mode === "signin" ? "Connexion à ton espace" : "Créer un compte"}
           </p>
         </div>
 
