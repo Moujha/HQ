@@ -7,7 +7,7 @@
 -- ============================================================
 CREATE TABLE IF NOT EXISTS artist_invites (
   id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  email       text NOT NULL UNIQUE,
+  email       text NOT NULL UNIQUE CHECK (email = lower(trim(email))),
   status      text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'consumed', 'revoked')),
   invited_by  uuid REFERENCES auth.users(id),
   created_at  timestamptz NOT NULL DEFAULT now(),
@@ -37,7 +37,7 @@ BEGIN
 
   IF EXISTS (
     SELECT 1 FROM public.artist_invites
-    WHERE email = new_email AND status = 'pending'
+    WHERE lower(trim(email)) = new_email AND status = 'pending'
   ) THEN
     RETURN '{}'::jsonb;
   END IF;
@@ -74,7 +74,7 @@ BEGIN
     resolved_role := 'artist';
     UPDATE public.artist_invites
       SET status = 'consumed', consumed_at = now()
-      WHERE email = new_email AND status = 'pending';
+      WHERE lower(trim(email)) = new_email AND status = 'pending';
   END IF;
 
   INSERT INTO public.profiles (user_id, display_name, role)
