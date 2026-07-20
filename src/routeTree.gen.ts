@@ -18,6 +18,7 @@ import { Route as AuthenticatedTracksRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTachesRouteImport } from './routes/_authenticated/taches'
 import { Route as AuthenticatedSubventionsRouteImport } from './routes/_authenticated/subventions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
 import { Route as AuthenticatedFinanceIndexRouteImport } from './routes/_authenticated/finance/index'
 import { Route as AuthenticatedFinanceFeesRouteImport } from './routes/_authenticated/finance/fees'
@@ -68,6 +69,12 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInvitationsRoute =
+  AuthenticatedInvitationsRouteImport.update({
+    id: '/invitations',
+    path: '/invitations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCalendrierRoute = AuthenticatedCalendrierRouteImport.update({
   id: '/calendrier',
   path: '/calendrier',
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subventions': typeof AuthenticatedSubventionsRoute
   '/taches': typeof AuthenticatedTachesRoute
@@ -110,6 +118,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subventions': typeof AuthenticatedSubventionsRoute
   '/taches': typeof AuthenticatedTachesRoute
@@ -126,6 +135,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
+  '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/subventions': typeof AuthenticatedSubventionsRoute
   '/_authenticated/taches': typeof AuthenticatedTachesRoute
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/unsubscribe'
     | '/calendrier'
+    | '/invitations'
     | '/onboarding'
     | '/subventions'
     | '/taches'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/unsubscribe'
     | '/calendrier'
+    | '/invitations'
     | '/onboarding'
     | '/subventions'
     | '/taches'
@@ -171,6 +183,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/unsubscribe'
     | '/_authenticated/calendrier'
+    | '/_authenticated/invitations'
     | '/_authenticated/onboarding'
     | '/_authenticated/subventions'
     | '/_authenticated/taches'
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/invitations': {
+      id: '/_authenticated/invitations'
+      path: '/invitations'
+      fullPath: '/invitations'
+      preLoaderRoute: typeof AuthenticatedInvitationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/calendrier': {
       id: '/_authenticated/calendrier'
       path: '/calendrier'
@@ -287,6 +307,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
+  AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSubventionsRoute: typeof AuthenticatedSubventionsRoute
   AuthenticatedTachesRoute: typeof AuthenticatedTachesRoute
@@ -299,6 +320,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
+  AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSubventionsRoute: AuthenticatedSubventionsRoute,
   AuthenticatedTachesRoute: AuthenticatedTachesRoute,

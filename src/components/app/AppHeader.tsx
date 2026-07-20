@@ -1,4 +1,4 @@
-import { Bell, ChevronLeft, LogOut } from "lucide-react";
+import { Bell, ChevronLeft, LogOut, UserPlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
@@ -105,6 +105,16 @@ export function AppHeader({ title, subtitle, backTo }: { title: string; subtitle
               </div>
             </SheetContent>
           </Sheet>
+
+          {profile?.role === "manager" && (
+            <Link
+              to="/invitations"
+              aria-label="Invitations"
+              className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-card text-muted-foreground"
+            >
+              <UserPlus className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
+            </Link>
+          )}
 
           <button
             onClick={signOut}
