@@ -35,7 +35,9 @@ Logic (case-insensitive, trimmed email comparison throughout):
 
 - Email equals `paul.bourdon.pro@gmail.com` → allow (manager).
 - Otherwise, look up the email in `artist_invites`. If a row exists with
-  `status = 'pending'` → allow (artist), and mark that row `consumed`.
+  `status = 'pending'` → allow (artist); the matching row is marked
+  `consumed` afterward by `handle_new_user()` (see "Role assignment" below),
+  not by the hook itself.
 - Otherwise → raise an exception with message
   `"Cet email n'est pas autorisé à créer un compte."`, which Supabase Auth
   surfaces as the `signUp()` error. The existing `catch` block in `auth.tsx`

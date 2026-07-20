@@ -37,7 +37,7 @@ BEGIN
 
   IF EXISTS (
     SELECT 1 FROM public.artist_invites
-    WHERE lower(trim(email)) = new_email AND status = 'pending'
+    WHERE email = new_email AND status = 'pending'
   ) THEN
     RETURN '{}'::jsonb;
   END IF;
@@ -74,7 +74,7 @@ BEGIN
     resolved_role := 'artist';
     UPDATE public.artist_invites
       SET status = 'consumed', consumed_at = now()
-      WHERE lower(trim(email)) = new_email AND status = 'pending';
+      WHERE email = new_email AND status = 'pending';
   END IF;
 
   INSERT INTO public.profiles (user_id, display_name, role)

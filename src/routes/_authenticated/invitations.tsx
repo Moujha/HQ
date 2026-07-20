@@ -13,17 +13,16 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCollection } from "@/hooks/use-collection";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeInviteEmail } from "@/lib/invites";
+import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/invitations")({
   component: InvitationsPage,
 });
 
-interface ArtistInvite {
-  id: string;
-  email: string;
-  status: "pending" | "consumed" | "revoked";
-  created_at: string;
-}
+type ArtistInvite = Pick<
+  Database["public"]["Tables"]["artist_invites"]["Row"],
+  "id" | "email" | "status" | "created_at"
+>;
 
 const schema = z.object({
   email: z.string().email("Email invalide"),
@@ -89,7 +88,11 @@ function InvitationsPage() {
   };
 
   const revoke = async (id: string) => {
-    const { error } = await supabase.from("artist_invites").update({ status: "revoked" }).eq("id", id);
+    const { error } = await supabase
+      .from("artist_invites")
+      .update({ status: "revoked" })
+      .eq("id", id)
+      .eq("status", "pending");
     if (error) {
       toast.error(error.message);
       return;
