@@ -451,6 +451,33 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_invites: {
+        Row: {
+          id: string
+          email: string
+          status: "pending" | "consumed" | "revoked"
+          invited_by: string | null
+          created_at: string
+          consumed_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          status?: "pending" | "consumed" | "revoked"
+          invited_by?: string | null
+          created_at?: string
+          consumed_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          status?: "pending" | "consumed" | "revoked"
+          invited_by?: string | null
+          created_at?: string
+          consumed_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       artist_fee_summary: {
