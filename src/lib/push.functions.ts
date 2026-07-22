@@ -22,7 +22,7 @@ export const savePushSubscription = createServerFn({ method: "POST" })
         auth: data.auth,
         user_agent: data.userAgent ?? null,
       },
-      { onConflict: "user_id,endpoint" },
+      { onConflict: "endpoint" },
     );
     if (error) throw new Error(error.message);
     return { ok: true };
