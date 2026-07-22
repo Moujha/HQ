@@ -54,7 +54,11 @@ export default {
 
     // In Cloudflare Pages Advanced Mode, static assets are NOT served automatically.
     // Try the ASSETS binding first; fall through to SSR only on 404.
-    if (env?.ASSETS) {
+    // Only attempt this for GET/HEAD: the ASSETS binding returns 405 (not 404)
+    // for any other method on any path, since static files don't support them —
+    // treating that 405 as "found" would swallow every POST (server functions
+    // included) before it ever reaches the real handler.
+    if (env?.ASSETS && (request.method === "GET" || request.method === "HEAD")) {
       try {
         const assetResponse = await env.ASSETS.fetch(request.clone());
         if (assetResponse.status !== 404) return assetResponse;
