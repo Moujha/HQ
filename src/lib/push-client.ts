@@ -148,7 +148,7 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 }
 
 export async function enablePush(): Promise<
-  { ok: true } | { ok: false; reason: string }
+  { ok: true } | { ok: false; reason: string; detail?: string }
 > {
   if (!isPushSupported()) {
     return { ok: false, reason: "unsupported" };
@@ -204,7 +204,9 @@ export async function enablePush(): Promise<
     if (msg.startsWith("timeout:")) {
       return { ok: false, reason: "timeout" };
     }
-    return { ok: false, reason: "error" };
+    console.error("[push] enablePush failed:", e);
+    const detail = e?.name ? `${e.name}: ${msg}` : msg;
+    return { ok: false, reason: "error", detail };
   }
 }
 

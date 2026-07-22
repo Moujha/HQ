@@ -67,7 +67,7 @@ export function NotificationsToggle() {
         toast.error("Notifications non disponibles sur cet appareil");
       } else {
         toast.error("Impossible d'activer les notifications", {
-          description: "Une erreur est survenue. Réessayez.",
+          description: res.detail ?? "Une erreur est survenue. Réessayez.",
         });
       }
     } catch {
