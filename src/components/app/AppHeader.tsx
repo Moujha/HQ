@@ -11,6 +11,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 interface Notif {
@@ -116,13 +127,28 @@ export function AppHeader({ title, subtitle, backTo }: { title: string; subtitle
             </Link>
           )}
 
-          <button
-            onClick={signOut}
-            className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-card text-muted-foreground"
-            aria-label="Déconnexion"
-          >
-            <LogOut className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="grid min-h-11 min-w-11 place-items-center rounded-full border border-border bg-card text-muted-foreground"
+                aria-label="Déconnexion"
+              >
+                <LogOut className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Se déconnecter ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tu devras te reconnecter pour accéder à ton espace.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={signOut}>Se déconnecter</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
       {subtitle && (
